@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Games Hub - Lưu Nick Đa Thiết Bị</title>
+  <style>
+    :root {
+      --bg-1: #070b14;
+      --bg-2: #0f172a;
+      --card: rgba(20, 30, 51, 0.85);
+      --card-hover: rgba(30, 44, 74, 0.96);
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.14), transparent 38%),
+        radial-gradient(circle at 85% 20%, rgba(167, 139, 250, 0.14), transparent 40%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 56px;
+      overflow-x: hidden;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.45); opacity: 0; }
+      75% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    header {
+      text-align: center;
+      max-width: 920px;
+      margin-bottom: 14px;
+    }
+
+    header h1 {
+      font-size: 2.05rem;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .sync-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(9, 13, 22, 0.85);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .auth-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      margin-left: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(14, 165, 233, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #bae6fd;
+    }
+
+    .auth-banner.unauth {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(248, 113, 113, 0.4);
+      color: #fecaca;
+    }
+
+    .profile-bar {
+      width: 100%;
+      max-width: 920px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+
+    .profile-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .profile-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-input {
+      background: rgba(9, 13, 22, 0.85);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 0.86rem;
+      outline: none;
+      width: 150px;
+    }
+
+    .profile-input:focus { border-color: var(--accent); }
+
+    .auth-feedback {
+      font-size: 0.82rem;
+      min-height: 18px;
+      color: var(--muted);
+    }
+
+    .auth-ok { color: #4ade80; font-weight: 600; }
+    .auth-err { color: #f87171; font-weight: 600; }
+
+    /* Modal Đăng nhập / Đăng ký / Đổi mật khẩu */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 17, 0.78);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeSlideIn 0.18s ease;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-header h3 { font-size: 1.15rem; }
+
+    .modal-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-close:hover { color: var(--text); border-color: var(--accent); }
+
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .modal-field label {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .modal-field input {
+      width: 100%;
+      background: rgba(9, 13, 22, 0.9);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .modal-field input:focus { border-color: var(--accent); }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .nav-tabs, .diff-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      max-width: 920px;
+    }
+
+    .nav-tabs { margin-bottom: 12px; }
+    .diff-bar { margin-bottom: 18px; align-items: center; }
+    .diff-label { color: var(--muted); font-size: 0.9rem; margin-right: 4px; }
+
+    .tab-btn, .diff-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 11px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .diff-btn { padding: 7px 13px; font-size: 0.85rem; }
+
+    .tab-btn:hover:not(.locked), .diff-btn:hover:not(.locked) {
+      background: var(--card-hover);
+      border-color: rgba(56, 189, 248, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .tab-btn.locked:not(.active), .diff-btn.locked {
+      opacity: 0.52;
+      cursor: not-allowed;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #06101d;
+      border-color: transparent;
+    }
+
+    .diff-btn.active[data-diff="easy"] { background: #22c55e; color: #052e16; border-color: transparent; }
+    .diff-btn.active[data-diff="normal"] { background: #38bdf8; color: #06101d; border-color: transparent; }
+    .diff-btn.active[data-diff="hard"] { background: #f59e0b; color: #1c1917; border-color: transparent; }
+    .diff-btn.active[data-diff="extreme"] { background: #ef4444; color: #ffffff; border-color: transparent; }
+
+    .game-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .game-section { display: none; text-align: center; }
+    .game-section.active { display: block; animation: fadeSlideIn 0.24s ease; }
+
+    .game-title { font-size: 1.38rem; margin-bottom: 6px; }
+    .game-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 14px; }
+
+    .btn {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #06101d;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: scale(0.96); }
+
+    .btn-secondary {
+      background: rgba(51, 65, 85, 0.85);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .guess-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .guess-input {
+      width: 126px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(9, 13, 22, 0.85);
+      color: var(--text);
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .status-box {
+      min-height: 52px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(9, 13, 22, 0.72);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+
+    .win { color: #4ade80; font-weight: 700; }
+    .lose { color: #f87171; font-weight: 700; }
+
+    .rps-choices {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .rps-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 96px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(9, 13, 22, 0.78);
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .rps-btn .rps-icon { font-size: 1.8rem; }
+    .rps-btn:hover { border-color: var(--accent); transform: translateY(-3px); }
+
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+      background: rgba(9, 13, 22, 0.72);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+    }
+
+    .ttt-board {
+      display: grid;
+      grid-template-columns: repeat(3, 96px);
+      gap: 10px;
+      justify-content: center;
+      margin: 14px auto 18px;
+    }
+
+    .ttt-cell {
+      width: 96px;
+      height: 96px;
+      background: rgba(9, 13, 22, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .ttt-cell.x { color: #38bdf8; animation: popIn 0.22s ease; }
+    .ttt-cell.o { color: #f472b6; animation: popIn 0.22s ease; }
+    .ttt-cell.win-cell { border-color: #4ade80; background: rgba(34, 197, 94, 0.14); }
+
+    canvas.game-canvas {
+      display: block;
+      margin: 0 auto 12px;
+      background: #060913;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 14px;
+      max-width: 100%;
+    }
+
+    #shooterCanvas {
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    #pointersCanvas, #slideCarsCanvas {
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .leaderboard-box {
+      width: 100%;
+      max-width: 980px;
+      margin-top: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      overflow-x: auto;
+    }
+
+    .leaderboard-title {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    table.lb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      min-width: 820px;
+    }
+
+    table.lb-table th, table.lb-table td {
+      padding: 8px 9px;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    table.lb-table th { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mini Games Hub</h1>
+    <p>Đăng nhập tài khoản để lưu kết quả chung cho người chơi ở các IP / thiết bị khác nhau</p>
+    <div id="syncStatus" class="sync-badge">Chế độ cục bộ (chưa cấu hình Firebase URL)</div>
+    <div id="authSessionBadge" class="auth-banner unauth">Chưa đăng nhập — Hãy đăng nhập để lưu kết quả</div>
+  </header>
+
+  <section class="profile-bar" aria-label="Đăng nhập và quản lý tài khoản">
+    <div class="profile-row">
+      <div class="profile-group">
+        <button type="button" id="openLoginBtn" class="btn">🔐 Đăng nhập</button>
+        <button type="button" id="openRegisterBtn" class="btn btn-success">✨ Đăng ký tài khoản</button>
+        <button type="button" id="openChangePassBtn" class="btn btn-secondary">🔑 Đổi mật khẩu</button>
+        <button type="button" id="logoutBtn" class="btn btn-secondary">Đăng xuất</button>
+      </div>
+      <div class="profile-group">
+        <button type="button" id="refreshCloudBtn" class="btn btn-secondary">Tải lại dữ liệu</button>
+      </div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-group">
+        <input type="text" id="newNickInput" class="profile-input" maxlength="16" placeholder="Tên tài khoản mới..." />
+        <input type="password" id="newNickPassInput" class="profile-input" maxlength="32" placeholder="Mật khẩu (≥ 4 ký tự)..." />
+        <button type="button" id="createNickBtn" class="btn">+ Đăng ký nhanh</button>
+      </div>
+      <div id="authFeedback" class="auth-feedback">Bạn cần đăng nhập để lưu điểm, kỷ lục và kết quả ván đấu.</div>
+    </div>
+  </section>
+
+  <!-- Modal Đăng nhập -->
+  <div id="loginModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="loginModalTitle">🔐 Đăng nhập tài khoản</h3>
+        <button type="button" class="modal-close" data-close-modal="loginModal">✕</button>
+      </div>
+      <form id="loginForm">
+        <div class="modal-field">
+          <label for="loginNickInput">Tên tài khoản</label>
+          <input type="text" id="loginNickInput" maxlength="16" required placeholder="Nhập tên tài khoản..." />
+        </div>
+        <div class="modal-field">
+          <label for="loginPassInput">Mật khẩu</label>
+          <input type="password" id="loginPassInput" maxlength="32" placeholder="Nhập mật khẩu..." />
+        </div>
+        <div id="loginError" class="auth-feedback"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="loginModal">Hủy</button>
+          <button type="submit" class="btn">Đăng nhập</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Đăng ký -->
+  <div id="registerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="registerModalTitle">✨ Đăng ký tài khoản mới</h3>
+        <button type="button" class="modal-close" data-close-modal="registerModal">✕</button>
+      </div>
+      <form id="registerForm">
+        <div class="modal-field">
+          <label for="regNickInput">Tên tài khoản (tối đa 16 ký tự)</label>
+          <input type="text" id="regNickInput" maxlength="16" required placeholder="Ví dụ: TuanPro99" />
+        </div>
+        <div class="modal-field">
+          <label for="regPassInput">Mật khẩu (ít nhất 4 ký tự)</label>
+          <input type="password" id="regPassInput" maxlength="32" required placeholder="Nhập mật khẩu..." />
+        </div>
+        <div class="modal-field">
+          <label for="regPassConfirmInput">Nhập lại mật khẩu</label>
+          <input type="password" id="regPassConfirmInput" maxlength="32" required placeholder="Xác nhận mật khẩu..." />
+        </div>
+        <div id="registerError" class="auth-feedback"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="registerModal">Hủy</button>
+          <button type="submit" class="btn btn-success">Đăng ký &amp; Đăng nhập</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Đổi mật khẩu -->
+  <div id="changePassModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="changePassModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="changePassModalTitle">🔑 Đổi mật khẩu tài khoản</h3>
+        <button type="button" class="modal-close" data-close-modal="changePassModal">✕</button>
+      </div>
+      <form id="changePassForm">
+        <div class="modal-field">
+          <label for="cpOldPassInput">Mật khẩu hiện tại</label>
+          <input type="password" id="cpOldPassInput" maxlength="32" placeholder="Mật khẩu cũ..." />
+        </div>
+        <div class="modal-field">
+          <label for="cpNewPassInput">Mật khẩu mới (ít nhất 4 ký tự)</label>
+          <input type="password" id="cpNewPassInput" maxlength="32" required placeholder="Mật khẩu mới..." />
+        </div>
+        <div id="changePassError" class="auth-feedback"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal="changePassModal">Hủy</button>
+          <button type="submit" class="btn">Lưu mật khẩu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <nav class="nav-tabs" aria-label="Danh sách trò chơi">
+    <button type="button" class="tab-btn active" data-game="snake">🐍 Rắn Săn Mồi</button>
+    <button type="button" class="tab-btn" data-game="runner">🏃 Vượt Chướng Ngại</button>
+    <button type="button" class="tab-btn" data-game="shooter">🔫 Đấu Súng Ngắm Chuột</button>
+    <button type="button" class="tab-btn" data-game="pointers">🎯 Pointers</button>
+    <button type="button" class="tab-btn" data-game="slidecars">🚗 Slide Cars</button>
+    <button type="button" class="tab-btn" data-game="guess">🔢 Đoán Số</button>
+    <button type="button" class="tab-btn" data-game="rps">✊ Kéo – Búa – Bao</button>
+    <button type="button" class="tab-btn" data-game="ttt">⭕ Caro 3x3</button>
+  </nav>
+
+  <div class="diff-bar" role="group" aria-label="Chế độ độ khó">
+    <span class="diff-label">Độ khó:</span>
+    <button type="button" class="diff-btn" data-diff="easy">Dễ</button>
+    <button type="button" class="diff-btn active" data-diff="normal">Bình thường</button>
+    <button type="button" class="diff-btn" data-diff="hard">Khó</button>
+    <button type="button" class="diff-btn" data-diff="extreme">Siêu khó</button>
+  </div>
+
+  <main class="game-container">
+    <!-- 1. RẮN SĂN MỒI -->
+    <section id="snake" class="game-section active">
+      <h2 class="game-title">Rắn Săn Mồi</h2>
+      <p class="game-desc">Phím mũi tên hoặc <strong>W A S D</strong>. Tài khoản lưu điểm: <strong id="snakeActiveNick">Chưa đăng nhập</strong>.</p>
+      <div class="score-board">
+        <div>Điểm: <strong id="snakeScore">0</strong></div>
+        <div>Kỷ lục: <strong id="snakeBest">0</strong></div>
+        <div>Chế độ: <strong id="snakeDiffLabel">Bình thường</strong></div>
+      </div>
+      <canvas id="snakeCanvas" class="game-canvas" width="400" height="400"></canvas>
+      <div id="snakeStatus" class="status-box">Hãy đăng nhập rồi nhấn "Bắt đầu / Chơi lại" để lưu kết quả.</div>
+      <div class="controls-row">
+        <button type="button" id="snakeStart" class="btn">Bắt đầu / Chơi lại</button>
+      </div>
+    </section>
+
+    <!-- 2. VƯỢT CHƯỚNG NGẠI VẬT -->
+    <section id="runner" class="game-section">
+      <h2 class="game-title">Vượt Chướng Ngại Vật</h2>
+      <p class="game-desc">Nhấn <strong>Space</strong>, <strong>W</strong>, <strong>Mũi tên lên</strong> hoặc bấm Nhảy.</p>
+      <div class="score-board">
+        <div>Điểm: <strong id="runnerScore">0</strong></div>
+        <div>Kỷ lục: <strong id="runnerBest">0</strong></div>
+        <div>Chế độ: <strong id="runnerDiffLabel">Bình thường</strong></div>
+      </div>
+      <canvas id="runnerCanvas" class="game-canvas" width="520" height="250"></canvas>
+      <div id="runnerStatus" class="status-box">Hãy đăng nhập rồi nhấn Chơi để lưu kết quả.</div>
+      <div class="controls-row">
+        <button type="button" id="runnerStart" class="btn">Chơi / Chơi lại</button>
+        <button type="button" id="runnerJumpBtn" class="btn btn-secondary">Nhảy (Space)</button>
+      </div>
+    </section>
+
+    <!-- 3. ĐẤU SÚNG NGẮM CHUỘT -->
+    <section id="shooter" class="game-section">
+      <h2 class="game-title">Đấu Súng Ngắm Chuột</h2>
+      <p class="game-desc">Nhấp chuột hoặc chạm vào mục tiêu để bắn đạn trúng đích. Mỗi ván kéo dài 45 giây.</p>
+      <div class="score-board">
+        <div>Điểm: <strong id="shooterScore">0</strong></div>
+        <div>Thời gian: <strong id="shooterTime">45s</strong></div>
+        <div>Kỷ lục: <strong id="shooterBest">0</strong></div>
+      </div>
+      <canvas id="shooterCanvas" class="game-canvas" width="480" height="360"></canvas>
+      <div id="shooterStatus" class="status-box">Hãy đăng nhập rồi nhấn "Bắt đầu / Chơi lại" để lưu kết quả!</div>
+      <div class="controls-row">
+        <button type="button" id="shooterStart" class="btn">Bắt đầu / Chơi lại</button>
+      </div>
+    </section>
+
+    <!-- 4. POINTERS -->
+    <section id="pointers" class="game-section">
+      <h2 class="game-title">Pointers (Mở Đường Con Trỏ)</h2>
+      <p class="game-desc">Mọi ô đều phủ kín mũi tên đơn sắc. Chạm vào mũi tên có đường thông thoáng để đưa nó ra khỏi lưới!</p>
+      <div class="score-board">
+        <div>Cấp: <strong id="pointersLevel">1</strong></div>
+        <div>Điểm: <strong id="pointersScore">0</strong></div>
+        <div>Mạng: <strong id="pointersLives">❤️❤️❤️</strong></div>
+        <div>Kỷ lục: <strong id="pointersBest">0</strong></div>
+      </div>
+      <canvas id="pointersCanvas" class="game-canvas" width="480" height="380"></canvas>
+      <div id="pointersStatus" class="status-box">Hãy đăng nhập rồi nhấn "Bắt đầu từ Cấp 1" để giải đố!</div>
+      <div class="controls-row">
+        <button type="button" id="pointersStart" class="btn">Bắt đầu từ Cấp 1</button>
+        <button type="button" id="pointersRetryLevel" class="btn btn-secondary">🔄 Chơi lại màn</button>
+        <button type="button" id="pointersHintBtn" class="btn btn-secondary">💡 Gợi ý (-10đ)</button>
+      </div>
+    </section>
+
+    <!-- 5. SLIDE CARS -->
+    <section id="slidecars" class="game-section">
+      <h2 class="game-title">Slide Cars — Mở Đường Xe Đỏ</h2>
+      <p class="game-desc">Slide the cars to clear a path and move the red car out of the board! (Kéo hoặc chạm xe để trượt).</p>
+      <div class="score-board">
+        <div>Màn: <strong id="slideCarsLevel">1</strong></div>
+        <div>Bước còn lại: <strong id="slideCarsMoves">0</strong></div>
+        <div>Điểm: <strong id="slideCarsScore">0</strong></div>
+        <div>Kỷ lục: <strong id="slideCarsBest">0</strong></div>
+      </div>
+      <canvas id="slideCarsCanvas" class="game-canvas" width="420" height="390"></canvas>
+      <div id="slideCarsStatus" class="status-box">Hãy đăng nhập rồi nhấn "Bắt đầu / Chơi lại" để trượt xe mở đường!</div>
+      <div class="controls-row">
+        <button type="button" id="slideCarsStart" class="btn">Bắt đầu / Chơi lại</button>
+        <button type="button" id="slideCarsResetLevel" class="btn btn-secondary">🔄 Chơi lại màn</button>
+      </div>
+    </section>
+
+    <!-- 6. ĐOÁN SỐ -->
+    <section id="guess" class="game-section">
+      <h2 class="game-title">Đoán Số Bí Mật</h2>
+      <p class="game-desc" id="guessDesc">Máy chọn số từ 1 đến 100. Bạn có 7 lượt đoán.</p>
+      <div class="guess-row">
+        <input type="number" id="guessInput" class="guess-input" min="1" max="100" placeholder="1-100" />
+        <button type="button" id="guessBtn" class="btn">Đoán</button>
+      </div>
+      <div id="guessStatus" class="status-box">Hãy đăng nhập, nhập một số và bấm Đoán!</div>
+      <p id="guessAttempts" class="game-desc" style="margin-bottom: 14px;">Số lượt đã dùng: 0 / 7</p>
+      <button type="button" id="guessReset" class="btn btn-secondary">Chơi lại</button>
+    </section>
+
+    <!-- 7. KÉO - BÚA - BAO -->
+    <section id="rps" class="game-section">
+      <h2 class="game-title">Kéo – Búa – Bao</h2>
+      <p class="game-desc" id="rpsDesc">Chọn nước đi của bạn để đấu với máy.</p>
+      <div class="rps-choices">
+        <button type="button" class="rps-btn" data-choice="Kéo"><span class="rps-icon">✌️</span><span>Kéo</span></button>
+        <button type="button" class="rps-btn" data-choice="Búa"><span class="rps-icon">✊</span><span>Búa</span></button>
+        <button type="button" class="rps-btn" data-choice="Bao"><span class="rps-icon">🖐️</span><span>Bao</span></button>
+      </div>
+      <div class="score-board">
+        <div><span id="rpsP1Name">Chưa đăng nhập</span>: <strong id="playerScore">0</strong></div>
+        <div>Hòa: <strong id="drawScore">0</strong></div>
+        <div>Máy: <strong id="cpuScore">0</strong></div>
+      </div>
+      <div id="rpsStatus" class="status-box">Hãy đăng nhập để lưu kết quả lượt đấu.</div>
+      <button type="button" id="rpsReset" class="btn btn-secondary">Đặt lại điểm</button>
+    </section>
+
+    <!-- 8. CARO 3X3 -->
+    <section id="ttt" class="game-section">
+      <h2 class="game-title">Caro 3x3</h2>
+      <p class="game-desc" id="tttDesc">X đi trước. Bạn là X, đấu với Máy (O).</p>
+      <div id="tttStatus" class="status-box">Hãy đăng nhập để lưu kết quả ván Caro.</div>
+      <div class="ttt-board" id="tttBoard">
+        <button type="button" class="ttt-cell" data-index="0"></button>
+        <button type="button" class="ttt-cell" data-index="1"></button>
+        <button type="button" class="ttt-cell" data-index="2"></button>
+        <button type="button" class="ttt-cell" data-index="3"></button>
+        <button type="button" class="ttt-cell" data-index="4"></button>
+        <button type="button" class="ttt-cell" data-index="5"></button>
+        <button type="button" class="ttt-cell" data-index="6"></button>
+        <button type="button" class="ttt-cell" data-index="7"></button>
+        <button type="button" class="ttt-cell" data-index="8"></button>
+      </div>
+      <button type="button" id="tttReset" class="btn btn-secondary">Ván mới</button>
+    </section>
+  </main>
+
+  <section class="leaderboard-box" aria-label="Bảng lưu kết quả theo tài khoản">
+    <div class="leaderboard-title">
+      <strong>📊 Bảng Xếp Hạng Tài Khoản (Đa Thiết Bị)</strong>
+      <button type="button" id="clearAllDataBtn" class="btn btn-secondary">Xóa toàn bộ tài khoản</button>
+    </div>
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th>Tài khoản</th>
+          <th>Ván chơi</th>
+          <th>Đoán trúng</th>
+          <th>Kéo búa bao</th>
+          <th>Caro</th>
+          <th>Rắn</th>
+          <th>Vượt cản</th>
+          <th>Bắn bia</th>
+          <th>Pointers</th>
+          <th>Slide Cars</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </section>
+
+  <script>
+    (function () {
+      // Dán URL Firebase Realtime Database vào đây (ví dụ: "https://ten-project-default-rtdb.firebaseio.com")
+      const FIREBASE_DB_URL = "";
+      const LOCAL_KEY = "mini_games_hub_auth_v6";
+      const SESSION_KEY = "mini_games_hub_session_v6";
+      const syncStatusEl = document.getElementById("syncStatus");
+      const authSessionBadge = document.getElementById("authSessionBadge");
+      const authFeedback = document.getElementById("authFeedback");
+
+      function makeAccount(id, name, passwordHash) {
+        return {
+          id: id,
+          name: name,
+          passwordHash: passwordHash || "",
+          played: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          guessWins: 0,
+          rpsWins: 0,
+          tttWins: 0,
+          snakeBest: 0,
+          runnerBest: 0,
+          shooterBest: 0,
+          pointersBest: 0,
+          slideCarsBest: 0
+        };
+      }
+
+      function normalizeList(rawObj) {
+        if (!rawObj) return [];
+        const arr = Array.isArray(rawObj) ? rawObj : Object.keys(rawObj).map(function (k) { return rawObj[k]; });
+        return arr
+          .filter(function (item) { return item && typeof item === "object" && item.name; })
+          .map(function (item, idx) {
+            const base = makeAccount(item.id || ("acc_" + idx), String(item.name), item.passwordHash || "");
+            return Object.assign(base, item);
+          });
+      }
+
+      async function hashPassword(plainText) {
+        if (!plainText) return "";
+        if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+          const buf = new TextEncoder().encode("mgh_salt_v2:" + plainText);
+          const digest = await window.crypto.subtle.digest("SHA-256", buf);
+          return Array.from(new Uint8Array(digest)).map(function (b) {
+            return b.toString(16).padStart(2, "0");
+          }).join("");
+        }
+        let h = 2166136261;
+        for (let i = 0; i < plainText.length; i++) {
+          h ^= plainText.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return "fb_" + (h >>> 0).toString(16);
+      }
+
+      function saveSessionId(id) {
+        try {
+          if (id) localStorage.setItem(SESSION_KEY, id);
+          else localStorage.removeItem(SESSION_KEY);
+        } catch (err) {}
+      }
+
+      function loadSessionId() {
+        try {
+          return localStorage.getItem(SESSION_KEY) || "";
+        } catch (err) {
+          return "";
+        }
+      }
+
+      function setFeedback(msg, type) {
+        authFeedback.textContent = msg;
+        authFeedback.className = "auth-feedback" + (type === "ok" ? " auth-ok" : type === "err" ? " auth-err" : "");
+      }
+
+      function saveLocal() {
+        try {
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(profiles));
+        } catch (err) {}
+      }
+
+      function loadLocal() {
+        try {
+          const raw = localStorage.getItem(LOCAL_KEY);
+          if (!raw) return [];
+          return normalizeList(JSON.parse(raw));
+        } catch (err) {
+          return [];
+        }
+      }
+
+      async function syncFromCloud() {
+        saveLocal();
+        if (!FIREBASE_DB_URL) {
+          syncStatusEl.textContent = "Chế độ cục bộ (điền FIREBASE_DB_URL để đồng bộ mọi IP)";
+          return;
+        }
+        try {
+          const endpoint = FIREBASE_DB_URL.replace(/\/+$/, "") + "/profiles.json";
+          const res = await fetch(endpoint);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          const list = normalizeList(data);
+          profiles = list;
+          if (loggedInUserId && !profiles.some(function (p) { return p.id === loggedInUserId; })) {
+            loggedInUserId = "";
+            saveSessionId("");
+          }
+          saveLocal();
+          renderProfileUI();
+          syncStatusEl.textContent = "Đã đồng bộ Firebase (mọi IP đều thấy)";
+        } catch (err) {
+          syncStatusEl.textContent = "Lỗi kết nối Firebase — đang dùng bản lưu tạm";
+        }
+      }
+
+      async function persistProfiles() {
+        saveLocal();
+        renderProfileUI();
+        if (!FIREBASE_DB_URL) return;
+        try {
+          const endpoint = FIREBASE_DB_URL.replace(/\/+$/, "") + "/profiles.json";
+          const payload = {};
+          profiles.forEach(function (p) { payload[p.id] = p; });
+          await fetch(endpoint, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          syncStatusEl.textContent = "Đã lưu lên Firebase";
+        } catch (err) {
+          syncStatusEl.textContent = "Chưa gửi được lên Firebase";
+        }
+      }
+
+      let profiles = loadLocal();
+      let loggedInUserId = loadSessionId();
+      if (loggedInUserId && !profiles.some(function (p) { return p.id === loggedInUserId; })) {
+        loggedInUserId = "";
+        saveSessionId("");
+      }
+
+      function getLoggedInAccount() {
+        if (!loggedInUserId) return null;
+        return profiles.find(function (p) { return p.id === loggedInUserId; }) || null;
+      }
+
+      function requireLogin(statusTarget) {
+        const acc = getLoggedInAccount();
+        if (acc) return acc;
+        setFeedback("Bạn chưa đăng nhập! Hãy đăng nhập hoặc đăng ký để lưu kết quả.", "err");
+        if (statusTarget) {
+          statusTarget.innerHTML = '<span class="lose">🔒 Vui lòng đăng nhập tài khoản trước khi chơi và lưu điểm.</span>';
+        }
+        return null;
+      }
+
+      function findAccountByName(name) {
+        const target = String(name || "").trim().toLowerCase();
+        if (!target) return null;
+        return profiles.find(function (p) { return String(p.name || "").trim().toLowerCase() === target; }) || null;
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      const newNickInput = document.getElementById("newNickInput");
+      const newNickPassInput = document.getElementById("newNickPassInput");
+      const createNickBtn = document.getElementById("createNickBtn");
+      const refreshCloudBtn = document.getElementById("refreshCloudBtn");
+      const leaderboardBody = document.getElementById("leaderboardBody");
+
+      function renderProfileUI() {
+        const acc = getLoggedInAccount();
+        if (acc) {
+          authSessionBadge.textContent = "Đã đăng nhập: " + acc.name;
+          authSessionBadge.className = "auth-banner";
+          document.getElementById("snakeActiveNick").textContent = acc.name;
+          document.getElementById("rpsP1Name").textContent = acc.name;
+          snakeBest = acc.snakeBest || 0;
+          runnerBest = acc.runnerBest || 0;
+          shooterBest = acc.shooterBest || 0;
+          pointersBest = acc.pointersBest || 0;
+          slideCarsBest = acc.slideCarsBest || 0;
+        } else {
+          authSessionBadge.textContent = "Chưa đăng nhập — Hãy đăng nhập để lưu kết quả";
+          authSessionBadge.className = "auth-banner unauth";
+          document.getElementById("snakeActiveNick").textContent = "Chưa đăng nhập";
+          document.getElementById("rpsP1Name").textContent = "Chưa đăng nhập";
+          snakeBest = 0;
+          runnerBest = 0;
+          shooterBest = 0;
+          pointersBest = 0;
+          slideCarsBest = 0;
+        }
+
+        snakeBestEl.textContent = String(snakeBest);
+        runnerBestEl.textContent = String(runnerBest);
+        shooterBestEl.textContent = String(shooterBest);
+        pointersBestEl.textContent = String(pointersBest);
+        slideCarsBestEl.textContent = String(slideCarsBest);
+
+        leaderboardBody.innerHTML = "";
+        if (profiles.length === 0) {
+          const emptyTr = document.createElement("tr");
+          emptyTr.innerHTML = '<td colspan="10" style="color: var(--muted); text-align: center;">Chưa có tài khoản nào. Hãy đăng ký để lưu kết quả.</td>';
+          leaderboardBody.appendChild(emptyTr);
+        } else {
+          profiles.forEach(function (p) {
+            const tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td><strong>" + escapeHtml(p.name) + "</strong></td>" +
+              "<td>" + (p.played || 0) + "</td>" +
+              "<td>" + (p.guessWins || 0) + "</td>" +
+              "<td>" + (p.rpsWins || 0) + "</td>" +
+              "<td>" + (p.tttWins || 0) + "</td>" +
+              "<td>" + (p.snakeBest || 0) + "</td>" +
+              "<td>" + (p.runnerBest || 0) + "</td>" +
+              "<td>" + (p.shooterBest || 0) + "</td>" +
+              "<td>" + (p.pointersBest || 0) + "</td>" +
+              "<td>" + (p.slideCarsBest || 0) + "</td>";
+            leaderboardBody.appendChild(tr);
+          });
+        }
+
+        updateTTTModeUI();
+      }
+
+      // ================= ĐĂNG NHẬP / ĐĂNG KÝ / ĐỔI MẬT KHẨU =================
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("open");
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove("open");
+      }
+
+      document.querySelectorAll("[data-close-modal]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          closeModal(btn.getAttribute("data-close-modal"));
+        });
+      });
+
+      document.querySelectorAll(".modal-backdrop").forEach(function (backdrop) {
+        backdrop.addEventListener("click", function (e) {
+          if (e.target === backdrop) backdrop.classList.remove("open");
+        });
+      });
+
+      const loginNickInput = document.getElementById("loginNickInput");
+      const loginPassInput = document.getElementById("loginPassInput");
+      const loginError = document.getElementById("loginError");
+
+      document.getElementById("openLoginBtn").addEventListener("click", function () {
+        loginNickInput.value = "";
+        loginPassInput.value = "";
+        loginError.textContent = "";
+        openModal("loginModal");
+        loginNickInput.focus();
+      });
+
+      document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const name = loginNickInput.value.trim();
+        const targetProfile = findAccountByName(name);
+
+        if (!targetProfile) {
+          loginError.textContent = "Không tìm thấy tài khoản này.";
+          loginError.className = "auth-feedback auth-err";
+          return;
+        }
+
+        const plainPass = loginPassInput.value;
+        if (targetProfile.passwordHash) {
+          if (!plainPass) {
+            loginError.textContent = "Vui lòng nhập mật khẩu.";
+            loginError.className = "auth-feedback auth-err";
+            return;
+          }
+          const hashed = await hashPassword(plainPass);
+          if (hashed !== targetProfile.passwordHash) {
+            loginError.textContent = "Mật khẩu không chính xác.";
+            loginError.className = "auth-feedback auth-err";
+            return;
+          }
+        }
+
+        loggedInUserId = targetProfile.id;
+        saveSessionId(loggedInUserId);
+        renderProfileUI();
+        closeModal("loginModal");
+        setFeedback("Đã đăng nhập tài khoản \"" + targetProfile.name + "\". Kết quả của bạn sẽ được lưu.", "ok");
+      });
+
+      const regNickInput = document.getElementById("regNickInput");
+      const regPassInput = document.getElementById("regPassInput");
+      const regPassConfirmInput = document.getElementById("regPassConfirmInput");
+      const registerError = document.getElementById("registerError");
+
+      document.getElementById("openRegisterBtn").addEventListener("click", function () {
+        regNickInput.value = "";
+        regPassInput.value = "";
+        regPassConfirmInput.value = "";
+        registerError.textContent = "";
+        openModal("registerModal");
+        regNickInput.focus();
+      });
+
+      document.getElementById("registerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const cleanName = regNickInput.value.trim();
+        const pass = regPassInput.value;
+        const passConfirm = regPassConfirmInput.value;
+
+        if (!cleanName) {
+          registerError.textContent = "Tên tài khoản không được để trống.";
+          registerError.className = "auth-feedback auth-err";
+          return;
+        }
+        if (findAccountByName(cleanName)) {
+          registerError.textContent = "Tên tài khoản này đã tồn tại. Hãy chọn tên khác hoặc đăng nhập.";
+          registerError.className = "auth-feedback auth-err";
+          return;
+        }
+        if (pass.length < 4) {
+          registerError.textContent = "Mật khẩu cần tối thiểu 4 ký tự.";
+          registerError.className = "auth-feedback auth-err";
+          return;
+        }
+        if (pass !== passConfirm) {
+          registerError.textContent = "Mật khẩu nhập lại không khớp.";
+          registerError.className = "auth-feedback auth-err";
+          return;
+        }
+
+        const hash = await hashPassword(pass);
+        const id = "acc_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        const created = makeAccount(id, cleanName, hash);
+        profiles.push(created);
+        loggedInUserId = id;
+        saveSessionId(id);
+        await persistProfiles();
+        closeModal("registerModal");
+        setFeedback("Đăng ký thành công! Đã đăng nhập tài khoản \"" + cleanName + "\".", "ok");
+      });
+
+      const cpOldPassInput = document.getElementById("cpOldPassInput");
+      const cpNewPassInput = document.getElementById("cpNewPassInput");
+      const changePassError = document.getElementById("changePassError");
+
+      document.getElementById("openChangePassBtn").addEventListener("click", function () {
+        const acc = requireLogin();
+        if (!acc) return;
+        cpOldPassInput.value = "";
+        cpNewPassInput.value = "";
+        changePassError.textContent = "";
+        openModal("changePassModal");
+        cpOldPassInput.focus();
+      });
+
+      document.getElementById("changePassForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const target = requireLogin();
+        if (!target) return;
+        const oldPass = cpOldPassInput.value;
+        const newPass = cpNewPassInput.value;
+
+        if (target.passwordHash) {
+          const oldHash = await hashPassword(oldPass);
+          if (oldHash !== target.passwordHash) {
+            changePassError.textContent = "Mật khẩu hiện tại không đúng.";
+            changePassError.className = "auth-feedback auth-err";
+            return;
+          }
+        }
+        if (newPass.length < 4) {
+          changePassError.textContent = "Mật khẩu mới cần tối thiểu 4 ký tự.";
+          changePassError.className = "auth-feedback auth-err";
+          return;
+        }
+
+        target.passwordHash = await hashPassword(newPass);
+        await persistProfiles();
+        closeModal("changePassModal");
+        setFeedback("Đã cập nhật mật khẩu cho tài khoản \"" + target.name + "\".", "ok");
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        const acc = getLoggedInAccount();
+        if (!acc) {
+          setFeedback("Hiện tại chưa có tài khoản nào đăng nhập.", "err");
+          return;
+        }
+        snakeRunning = false; clearInterval(snakeTimer);
+        runnerRunning = false;
+        if (shooterRunning) { shooterRunning = false; stopShooterLoops(); targets = []; projectiles = []; }
+        pointersRunning = false; pointerTiles = []; exitingTiles = [];
+        slideCarsRunning = false; slideCarsList = []; draggedCar = null;
+        loggedInUserId = "";
+        saveSessionId("");
+        renderProfileUI();
+        syncLockVisuals();
+        setFeedback("Đã đăng xuất khỏi \"" + acc.name + "\". Hãy đăng nhập để lưu kết quả.", "ok");
+      });
+
+      createNickBtn.addEventListener("click", async function () {
+        const clean = newNickInput.value.trim();
+        const rawPass = newNickPassInput.value;
+        if (!clean) return;
+        if (findAccountByName(clean)) {
+          setFeedback("Tài khoản \"" + clean + "\" đã tồn tại. Hãy bấm Đăng nhập.", "err");
+          return;
+        }
+        if (!rawPass || rawPass.length < 4) {
+          setFeedback("Vui lòng nhập mật khẩu tối thiểu 4 ký tự.", "err");
+          return;
+        }
+        const hash = await hashPassword(rawPass);
+        const id = "acc_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        profiles.push(makeAccount(id, clean, hash));
+        loggedInUserId = id;
+        saveSessionId(id);
+        newNickInput.value = "";
+        newNickPassInput.value = "";
+        await persistProfiles();
+        setFeedback("Đã đăng ký và đăng nhập tài khoản \"" + clean + "\".", "ok");
+      });
+
+      newNickInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") createNickBtn.click();
+      });
+
+      refreshCloudBtn.addEventListener("click", syncFromCloud);
+
+      document.getElementById("clearAllDataBtn").addEventListener("click", function () {
+        profiles = [];
+        loggedInUserId = "";
+        saveSessionId("");
+        persistProfiles();
+        setFeedback("Đã xóa toàn bộ danh sách tài khoản.", "ok");
+      });
+
+      function saveBestOnly(bestField, scoreVal) {
+        const p = getLoggedInAccount();
+        if (!p || !bestField) return;
+        if (typeof scoreVal === "number" && scoreVal > (p[bestField] || 0)) {
+          p[bestField] = scoreVal;
+          persistProfiles();
+        }
+      }
+
+      function updateResult(outcome, bestField, scoreVal, winCounterField) {
+        const p = getLoggedInAccount();
+        if (!p) return;
+        p.played = (p.played || 0) + 1;
+        if (outcome === "win") p.wins = (p.wins || 0) + 1;
+        if (outcome === "draw") p.draws = (p.draws || 0) + 1;
+        if (outcome === "loss") p.losses = (p.losses || 0) + 1;
+        if (winCounterField) p[winCounterField] = (p[winCounterField] || 0) + 1;
+        if (bestField && typeof scoreVal === "number" && scoreVal > (p[bestField] || 0)) {
+          p[bestField] = scoreVal;
+        }
+        persistProfiles();
+      }
+
+      const DIFF_CONFIG = {
+        easy: { label: "Dễ", snakeMs: 155, runnerSpeed: 4.2, runnerMinGap: 72, runnerMaxGap: 112, runnerGravity: 0.56, runnerJump: -12.4, targetRadius: 28, targetSpeed: 0.7, spawnIntervalMs: 850, pointerGrid: 5, pointerLives: 3, slideMovesBonus: 18, guessMaxAttempts: 10, rpsCounterChance: 0, tttDepth: 1, tttRandomChance: 0.45 },
+        normal: { label: "Bình thường", snakeMs: 115, runnerSpeed: 5.4, runnerMinGap: 56, runnerMaxGap: 90, runnerGravity: 0.64, runnerJump: -12.8, targetRadius: 23, targetSpeed: 1.2, spawnIntervalMs: 680, pointerGrid: 6, pointerLives: 2, slideMovesBonus: 12, guessMaxAttempts: 7, rpsCounterChance: 0.12, tttDepth: 2, tttRandomChance: 0.15 },
+        hard: { label: "Khó", snakeMs: 80, runnerSpeed: 7.0, runnerMinGap: 44, runnerMaxGap: 72, runnerGravity: 0.74, runnerJump: -13.3, targetRadius: 19, targetSpeed: 1.8, spawnIntervalMs: 540, pointerGrid: 7, pointerLives: 2, slideMovesBonus: 7, guessMaxAttempts: 5, rpsCounterChance: 0.45, tttDepth: 4, tttRandomChance: 0 },
+        extreme: { label: "Siêu khó", snakeMs: 52, runnerSpeed: 8.8, runnerMinGap: 34, runnerMaxGap: 56, runnerGravity: 0.85, runnerJump: -13.9, targetRadius: 16, targetSpeed: 2.5, spawnIntervalMs: 420, pointerGrid: 8, pointerLives: 1, slideMovesBonus: 4, guessMaxAttempts: 4, rpsCounterChance: 0.75, tttDepth: 9, tttRandomChance: 0 }
+      };
+
+      let currentDiff = "normal";
+      let activeGame = "snake";
+      let attempts = 0;
+
+      function isAnyGameInProgress() {
+        const guessInProgress = !gameOverGuess && attempts > 0;
+        const tttInProgress = !tttOver && tttBoard.some(function (c) { return c !== ""; });
+        return Boolean(
+          snakeRunning ||
+          runnerRunning ||
+          shooterRunning ||
+          pointersRunning ||
+          slideCarsRunning ||
+          guessInProgress ||
+          tttInProgress
+        );
+      }
+
+      const diffBtns = document.querySelectorAll(".diff-btn");
+      const tabs = document.querySelectorAll(".tab-btn");
+      const sections = document.querySelectorAll(".game-section");
+
+      function syncLockVisuals() {
+        const locked = isAnyGameInProgress();
+        diffBtns.forEach(function (b) {
+          b.classList.toggle("locked", locked);
+          b.setAttribute("aria-disabled", locked ? "true" : "false");
+        });
+        tabs.forEach(function (t) {
+          const isOtherTab = t.dataset.game !== activeGame;
+          const tabLocked = locked && isOtherTab;
+          t.classList.toggle("locked", tabLocked);
+          t.setAttribute("aria-disabled", tabLocked ? "true" : "false");
+        });
+      }
+
+      function spawnParticles(list, x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+          const speed = 1.5 + Math.random() * 3.2;
+          list.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 1, decay: 0.032 + Math.random() * 0.025, radius: 2 + Math.random() * 2.5, color: color });
+        }
+      }
+
+      function updateAndDrawParticles(ctx, list) {
+        for (let i = list.length - 1; i >= 0; i--) {
+          const p = list[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.96;
+          p.vy *= 0.96;
+          p.life -= p.decay;
+          if (p.life <= 0) { list.splice(i, 1); continue; }
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // ================= 4. POINTERS =================
+      const pointersCanvas = document.getElementById("pointersCanvas");
+      const pCtx = pointersCanvas.getContext("2d");
+      const POINTER_DIRS = [
+        { key: "UP", dx: 0, dy: -1 },
+        { key: "DOWN", dx: 0, dy: 1 },
+        { key: "LEFT", dx: -1, dy: 0 },
+        { key: "RIGHT", dx: 1, dy: 0 }
+      ];
+
+      let pointerTiles = [];
+      let initialLevelTiles = [];
+      let exitingTiles = [];
+      let pointerParticles = [];
+      let pointerGridSize = 6;
+      let pointersLevel = 1;
+      let pointersScore = 0;
+      let pointersLevelStartScore = 0;
+      let pointersBest = 0;
+      let pointersLives = 2;
+      let pointersRunning = false;
+      let hoveredTileKey = "";
+      let hintTileKey = "";
+      let hintUntil = 0;
+
+      const pointersLevelEl = document.getElementById("pointersLevel");
+      const pointersScoreEl = document.getElementById("pointersScore");
+      const pointersLivesEl = document.getElementById("pointersLives");
+      const pointersBestEl = document.getElementById("pointersBest");
+      const pointersStatusEl = document.getElementById("pointersStatus");
+
+      function updatePointersHUD() {
+        pointersLevelEl.textContent = String(pointersLevel);
+        pointersScoreEl.textContent = String(pointersScore);
+        pointersBestEl.textContent = String(pointersBest);
+        pointersLivesEl.textContent = pointersLives > 0 ? "❤️".repeat(pointersLives) : "💔 0";
+      }
+
+      function getGridMetrics(n) {
+        const boardPx = Math.min(pointersCanvas.width - 28, pointersCanvas.height - 28);
+        const gap = n >= 7 ? 2 : 3;
+        const cellSize = Math.floor((boardPx - gap * (n - 1)) / n);
+        const totalSize = cellSize * n + gap * (n - 1);
+        const offsetX = Math.floor((pointersCanvas.width - totalSize) / 2);
+        const offsetY = Math.floor((pointersCanvas.height - totalSize) / 2);
+        return { n: n, cellSize: cellSize, gap: gap, offsetX: offsetX, offsetY: offsetY, totalSize: totalSize };
+      }
+
+      function isPathClear(tilesList, c, r, dir, n) {
+        let nc = c + dir.dx;
+        let nr = r + dir.dy;
+        while (nc >= 0 && nc < n && nr >= 0 && nr < n) {
+          for (let i = 0; i < tilesList.length; i++) {
+            if (tilesList[i].c === nc && tilesList[i].r === nr) {
+              return tilesList[i];
+            }
+          }
+          nc += dir.dx;
+          nr += dir.dy;
+        }
+        return null;
+      }
+
+      function hasAnyClearTile(tilesList, n) {
+        for (let i = 0; i < tilesList.length; i++) {
+          const t = tilesList[i];
+          if (isPathClear(tilesList, t.c, t.r, t.dir, n) === null) return true;
+        }
+        return false;
+      }
+
+      function distanceToEdge(c, r, dir, n) {
+        if (dir.key === "RIGHT") return (n - 1) - c;
+        if (dir.key === "LEFT") return c;
+        if (dir.key === "DOWN") return (n - 1) - r;
+        return r;
+      }
+
+      function generateFullPointersBoard(n) {
+        const placed = [];
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const candidates = [];
+            for (let d = 0; d < POINTER_DIRS.length; d++) {
+              const dir = POINTER_DIRS[d];
+              const edgeDist = distanceToEdge(c, r, dir, n);
+              const testList = placed.concat([{ c: c, r: r, dir: dir }]);
+              const clearNow = isPathClear(placed, c, r, dir, n) === null;
+              const stillSolvable = hasAnyClearTile(testList, n);
+              if (!stillSolvable && !clearNow) continue;
+
+              let blocksExisting = 0;
+              for (let k = 0; k < placed.length; k++) {
+                const ex = placed[k];
+                let tc = ex.c + ex.dir.dx;
+                let tr = ex.r + ex.dir.dy;
+                while (tc >= 0 && tc < n && tr >= 0 && tr < n) {
+                  if (tc === c && tr === r) { blocksExisting++; break; }
+                  tc += ex.dir.dx;
+                  tr += ex.dir.dy;
+                }
+              }
+              const weight = 1 + blocksExisting * 7 + edgeDist * 1.3;
+              candidates.push({ dir: dir, weight: weight });
+            }
+
+            if (candidates.length === 0) {
+              candidates.push({ dir: POINTER_DIRS[Math.floor(Math.random() * POINTER_DIRS.length)], weight: 1 });
+            }
+
+            let totalWeight = 0;
+            for (let i = 0; i < candidates.length; i++) totalWeight += candidates[i].weight;
+            let pick = Math.random() * totalWeight;
+            let chosenDir = candidates[0].dir;
+            for (let i = 0; i < candidates.length; i++) {
+              pick -= candidates[i].weight;
+              if (pick <= 0) { chosenDir = candidates[i].dir; break; }
+            }
+
+            placed.push({
+              c: c,
+              r: r,
+              dir: chosenDir,
+              bumpX: 0,
+              bumpY: 0,
+              errorFlash: 0
+            });
+          }
+        }
+        return placed;
+      }
+
+      function cloneTiles(list) {
+        return list.map(function (t) {
+          return {
+            c: t.c,
+            r: t.r,
+            dir: t.dir,
+            bumpX: 0,
+            bumpY: 0,
+            errorFlash: 0
+          };
+        });
+      }
+
+      function loadPointersLevel(levelNum) {
+        const cfg = DIFF_CONFIG[currentDiff];
+        pointerGridSize = cfg.pointerGrid;
+        const generated = generateFullPointersBoard(pointerGridSize);
+        initialLevelTiles = cloneTiles(generated);
+        pointerTiles = cloneTiles(generated);
+        exitingTiles = [];
+        pointerParticles = [];
+        hintTileKey = "";
+        pointersLevelStartScore = pointersScore;
+        updatePointersHUD();
+        syncLockVisuals();
+        pointersStatusEl.textContent = "Cấp " + levelNum + " (" + cfg.label + ", kín " + pointerGridSize + "×" + pointerGridSize + " mũi tên): Chọn đúng thứ tự!";
+      }
+
+      function startPointersRun() {
+        if (!requireLogin(pointersStatusEl)) return;
+        const cfg = DIFF_CONFIG[currentDiff];
+        pointersLevel = 1;
+        pointersScore = 0;
+        pointersLives = cfg.pointerLives;
+        pointersRunning = true;
+        loadPointersLevel(1);
+      }
+
+      function retryCurrentPointersLevel() {
+        if (!requireLogin(pointersStatusEl)) return;
+        if (initialLevelTiles.length === 0) {
+          startPointersRun();
+          return;
+        }
+        const cfg = DIFF_CONFIG[currentDiff];
+        if (!pointersRunning) {
+          pointersLives = cfg.pointerLives;
+          pointersRunning = true;
+        }
+        pointersScore = pointersLevelStartScore;
+        pointerTiles = cloneTiles(initialLevelTiles);
+        exitingTiles = [];
+        pointerParticles = [];
+        hintTileKey = "";
+        updatePointersHUD();
+        syncLockVisuals();
+        pointersStatusEl.textContent = "Đã đặt lại Cấp " + pointersLevel + ". Hãy tính toán kỹ thứ tự mở đường!";
+      }
+
+      function showPointersHint() {
+        if (!requireLogin(pointersStatusEl)) return;
+        if (!pointersRunning || pointerTiles.length === 0) return;
+        const clearList = [];
+        for (let i = 0; i < pointerTiles.length; i++) {
+          const t = pointerTiles[i];
+          if (isPathClear(pointerTiles, t.c, t.r, t.dir, pointerGridSize) === null) {
+            clearList.push(t);
+          }
+        }
+        if (clearList.length > 0) {
+          const chosen = clearList[Math.floor(Math.random() * clearList.length)];
+          hintTileKey = chosen.c + "," + chosen.r;
+          hintUntil = performance.now() + 1300;
+          pointersScore = Math.max(0, pointersScore - 10);
+          updatePointersHUD();
+          pointersStatusEl.textContent = "💡 Gợi ý (-10đ): Mũi tên sáng xanh lá đang thông đường!";
+        }
+      }
+
+      function getPointersCanvasCoords(clientX, clientY) {
+        const rect = pointersCanvas.getBoundingClientRect();
+        return {
+          x: ((clientX - rect.left) / rect.width) * pointersCanvas.width,
+          y: ((clientY - rect.top) / rect.height) * pointersCanvas.height
+        };
+      }
+
+      function findTileAtCanvasPoint(px, py) {
+        const m = getGridMetrics(pointerGridSize);
+        for (let i = 0; i < pointerTiles.length; i++) {
+          const t = pointerTiles[i];
+          const x = m.offsetX + t.c * (m.cellSize + m.gap);
+          const y = m.offsetY + t.r * (m.cellSize + m.gap);
+          if (px >= x && px <= x + m.cellSize && py >= y && py <= y + m.cellSize) {
+            return { tile: t, index: i, x: x, y: y, cellSize: m.cellSize };
+          }
+        }
+        return null;
+      }
+
+      pointersCanvas.addEventListener("pointermove", function (e) {
+        if (!pointersRunning || activeGame !== "pointers") {
+          hoveredTileKey = "";
+          return;
+        }
+        const pt = getPointersCanvasCoords(e.clientX, e.clientY);
+        const hit = findTileAtCanvasPoint(pt.x, pt.y);
+        hoveredTileKey = hit ? (hit.tile.c + "," + hit.tile.r) : "";
+      });
+
+      pointersCanvas.addEventListener("pointerleave", function () {
+        hoveredTileKey = "";
+      });
+
+      pointersCanvas.addEventListener("pointerdown", function (e) {
+        if (!pointersRunning || activeGame !== "pointers") return;
+        const pt = getPointersCanvasCoords(e.clientX, e.clientY);
+        const hit = findTileAtCanvasPoint(pt.x, pt.y);
+        if (!hit) return;
+
+        const t = hit.tile;
+        const blocker = isPathClear(pointerTiles, t.c, t.r, t.dir, pointerGridSize);
+
+        if (blocker === null) {
+          pointerTiles.splice(hit.index, 1);
+          hintTileKey = "";
+          exitingTiles.push({
+            x: hit.x,
+            y: hit.y,
+            size: hit.cellSize,
+            vx: t.dir.dx * 16,
+            vy: t.dir.dy * 16,
+            dir: t.dir
+          });
+          spawnParticles(pointerParticles, hit.x + hit.cellSize / 2, hit.y + hit.cellSize / 2, "#e2e8f0", 9);
+
+          pointersScore += 10;
+          if (pointersScore > pointersBest) {
+            pointersBest = pointersScore;
+          }
+          updatePointersHUD();
+
+          if (pointerTiles.length === 0) {
+            const levelBonus = pointersLevel * 35;
+            pointersScore += levelBonus;
+            if (pointersScore > pointersBest) {
+              pointersBest = pointersScore;
+            }
+            saveBestOnly("pointersBest", pointersScore);
+            updatePointersHUD();
+            const clearedLevel = pointersLevel;
+            pointersLevel++;
+            pointersStatusEl.innerHTML = '<span class="win">🎉 Hoàn thành Cấp ' + clearedLevel + " (+" + levelBonus + " thưởng)! Đang sang Cấp " + pointersLevel + "...</span>";
+            setTimeout(function () {
+              if (pointersRunning && pointerTiles.length === 0) {
+                loadPointersLevel(pointersLevel);
+              }
+            }, 650);
+          }
+        } else {
+          t.bumpX = t.dir.dx * 10;
+          t.bumpY = t.dir.dy * 10;
+          t.errorFlash = 1;
+          blocker.errorFlash = 0.7;
+          spawnParticles(pointerParticles, hit.x + hit.cellSize / 2 + t.dir.dx * 12, hit.y + hit.cellSize / 2 + t.dir.dy * 12, "#ef4444", 7);
+
+          pointersLives--;
+          updatePointersHUD();
+
+          if (pointersLives <= 0) {
+            pointersRunning = false;
+            syncLockVisuals();
+            pointersStatusEl.innerHTML = '<span class="lose">💥 Hết mạng ở Cấp ' + pointersLevel + "! Tổng điểm: " + pointersScore + ".</span>";
+            updateResult(pointersScore > 0 ? "win" : "loss", "pointersBest", pointersScore, null);
+          } else {
+            pointersStatusEl.innerHTML = '<span class="lose">⛔ Bị chặn đường! Còn ' + pointersLives + " mạng.</span>";
+          }
+        }
+      });
+
+      function drawArrowGlyph(ctx, cx, cy, size, dir, color) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        let angle = 0;
+        if (dir.key === "RIGHT") angle = 0;
+        else if (dir.key === "DOWN") angle = Math.PI / 2;
+        else if (dir.key === "LEFT") angle = Math.PI;
+        else if (dir.key === "UP") angle = -Math.PI / 2;
+        ctx.rotate(angle);
+
+        const shaftLen = size * 0.25;
+        const headSize = size * 0.22;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = Math.max(2, size * 0.08);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.beginPath();
+        ctx.moveTo(-shaftLen, 0);
+        ctx.lineTo(shaftLen * 0.65, 0);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(shaftLen + headSize * 0.45, 0);
+        ctx.lineTo(shaftLen * 0.2, -headSize * 0.72);
+        ctx.lineTo(shaftLen * 0.2, headSize * 0.72);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function updateAndDrawPointers(now) {
+        pCtx.fillStyle = "#060913";
+        pCtx.fillRect(0, 0, pointersCanvas.width, pointersCanvas.height);
+
+        const m = getGridMetrics(pointerGridSize);
+
+        for (let i = 0; i < pointerTiles.length; i++) {
+          const t = pointerTiles[i];
+          t.bumpX *= 0.74;
+          t.bumpY *= 0.74;
+          if (t.errorFlash > 0) t.errorFlash = Math.max(0, t.errorFlash - 0.055);
+
+          const key = t.c + "," + t.r;
+          const isHovered = hoveredTileKey === key && pointersRunning;
+          const isHinted = hintTileKey === key && now < hintUntil;
+
+          const x = m.offsetX + t.c * (m.cellSize + m.gap) + t.bumpX;
+          const y = m.offsetY + t.r * (m.cellSize + m.gap) + t.bumpY;
+
+          let arrowColor = "#e2e8f0";
+          if (t.errorFlash > 0) arrowColor = "#ef4444";
+          else if (isHinted) arrowColor = "#4ade80";
+          else if (isHovered) arrowColor = "#38bdf8";
+
+          drawArrowGlyph(
+            pCtx,
+            x + m.cellSize / 2,
+            y + m.cellSize / 2,
+            m.cellSize,
+            t.dir,
+            arrowColor
+          );
+        }
+
+        for (let i = exitingTiles.length - 1; i >= 0; i--) {
+          const ex = exitingTiles[i];
+          ex.x += ex.vx;
+          ex.y += ex.vy;
+          ex.vx *= 1.08;
+          ex.vy *= 1.08;
+
+          if (
+            ex.x < -ex.size - 20 ||
+            ex.x > pointersCanvas.width + 20 ||
+            ex.y < -ex.size - 20 ||
+            ex.y > pointersCanvas.height + 20
+          ) {
+            exitingTiles.splice(i, 1);
+            continue;
+          }
+
+          drawArrowGlyph(pCtx, ex.x + ex.size / 2, ex.y + ex.size / 2, ex.size, ex.dir, "#38bdf8");
+        }
+
+        updateAndDrawParticles(pCtx, pointerParticles);
+      }
+
+      document.getElementById("pointersStart").addEventListener("click", function (e) {
+        e.currentTarget.blur();
+        startPointersRun();
+      });
+
+      document.getElementById("pointersRetryLevel").addEventListener("click", function (e) {
+        e.currentTarget.blur();
+        retryCurrentPointersLevel();
+      });
+
+      document.getElementById("pointersHintBtn").addEventListener("click", function (e) {
+        e.currentTarget.blur();
+        showPointersHint();
+      });
+
+      // ================= 5. SLIDE CARS =================
+      const slideCarsCanvas = document.getElementById("slideCarsCanvas");
+      const scCtx = slideCarsCanvas.getContext("2d");
+      const SC_GRID = 6;
+      const SC_CELL = 54;
+      const SC_GAP = 4;
+      const SC_BOARD_PX = SC_CELL * SC_GRID + SC_GAP * (SC_GRID - 1);
+      const SC_OFFSET_X = 22;
+      const SC_OFFSET_Y = 30;
+      const EXIT_ROW = 2;
+
+      const SLIDE_CAR_LEVELS = [
+        {
+          parMoves: 7,
+          cars: [
+            { id: "red", c: 1, r: 2, len: 2, orient: "H", isRed: true, color: "#ef4444" },
+            { id: "v1", c: 3, r: 1, len: 2, orient: "V", color: "#38bdf8" },
+            { id: "h1", c: 2, r: 3, len: 3, orient: "H", color: "#a78bfa" },
+            { id: "v2", c: 0, r: 0, len: 3, orient: "V", color: "#22c55e" },
+            { id: "h2", c: 1, r: 0, len: 2, orient: "H", color: "#f59e0b" },
+            { id: "v3", c: 4, r: 3, len: 2, orient: "V", color: "#ec4899" }
+          ]
+        },
+        {
+          parMoves: 10,
+          cars: [
+            { id: "red", c: 0, r: 2, len: 2, orient: "H", isRed: true, color: "#ef4444" },
+            { id: "v1", c: 2, r: 1, len: 2, orient: "V", color: "#38bdf8" },
+            { id: "v2", c: 4, r: 1, len: 3, orient: "V", color: "#a78bfa" },
+            { id: "h1", c: 2, r: 3, len: 2, orient: "H", color: "#22c55e" },
+            { id: "h2", c: 0, r: 4, len: 3, orient: "H", color: "#f59e0b" },
+            { id: "v3", c: 3, r: 4, len: 2, orient: "V", color: "#ec4899" },
+            { id: "h3", c: 2, r: 0, len: 3, orient: "H", color: "#14b8a6" }
+          ]
+        },
+        {
+          parMoves: 13,
+          cars: [
+            { id: "red", c: 1, r: 2, len: 2, orient: "H", isRed: true, color: "#ef4444" },
+            { id: "v1", c: 0, r: 1, len: 3, orient: "V", color: "#38bdf8" },
+            { id: "v2", c: 3, r: 1, len: 2, orient: "V", color: "#a78bfa" },
+            { id: "h1", c: 3, r: 3, len: 2, orient: "H", color: "#22c55e" },
+            { id: "v3", c: 5, r: 2, len: 3, orient: "V", color: "#f59e0b" },
+            { id: "h2", c: 1, r: 4, len: 3, orient: "H", color: "#ec4899" },
+            { id: "h3", c: 1, r: 0, len: 2, orient: "H", color: "#14b8a6" },
+            { id: "v4", c: 4, r: 0, len: 2, orient: "V", color: "#818cf8" }
+          ]
+        }
+      ];
+
+      let slideCarsList = [];
+      let slideCarsInitial = [];
+      let slideCarsParticles = [];
+      let slideCarsLevel = 1;
+      let slideCarsMovesLeft = 0;
+      let slideCarsScore = 0;
+      let slideCarsLevelStartScore = 0;
+      let slideCarsBest = 0;
+      let slideCarsRunning = false;
+      let slideCarsExiting = false;
+      let redCarExitX = 0;
+      let draggedCar = null;
+      let dragStartPt = { x: 0, y: 0 };
+      let dragStartCell = 0;
+
+      const slideCarsLevelEl = document.getElementById("slideCarsLevel");
+      const slideCarsMovesEl = document.getElementById("slideCarsMoves");
+      const slideCarsScoreEl = document.getElementById("slideCarsScore");
+      const slideCarsBestEl = document.getElementById("slideCarsBest");
+      const slideCarsStatusEl = document.getElementById("slideCarsStatus");
+
+      function updateSlideCarsHUD() {
+        slideCarsLevelEl.textContent = String(slideCarsLevel);
+        slideCarsMovesEl.textContent = String(slideCarsMovesLeft);
+        slideCarsScoreEl.textContent = String(slideCarsScore);
+        slideCarsBestEl.textContent = String(slideCarsBest);
+      }
+
+      function cloneCars(list) {
+        return list.map(function (c) {
+          return {
+            id: c.id,
+            c: c.c,
+            r: c.r,
+            len: c.len,
+            orient: c.orient,
+            isRed: Boolean(c.isRed),
+            color: c.color
+          };
+        });
+      }
+
+      function buildOccupancy(cars, ignoreId) {
+        const occ = Array.from({ length: SC_GRID }, function () {
+          return Array(SC_GRID).fill(null);
+        });
+        for (let i = 0; i < cars.length; i++) {
+          const car = cars[i];
+          if (ignoreId && car.id === ignoreId) continue;
+          for (let k = 0; k < car.len; k++) {
+            const cc = car.orient === "H" ? car.c + k : car.c;
+            const rr = car.orient === "V" ? car.r + k : car.r;
+            if (cc >= 0 && cc < SC_GRID && rr >= 0 && rr < SC_GRID) {
+              occ[rr][cc] = car.id;
+            }
+          }
+        }
+        return occ;
+      }
+
+      function computeMoveBounds(car, cars) {
+        const occ = buildOccupancy(cars, car.id);
+        if (car.orient === "H") {
+          let minC = car.c;
+          while (minC - 1 >= 0 && occ[car.r][minC - 1] === null) minC--;
+          let maxC = car.c;
+          while (maxC + car.len < SC_GRID && occ[car.r][maxC + car.len] === null) maxC++;
+          return { min: minC, max: maxC };
+        } else {
+          let minR = car.r;
+          while (minR - 1 >= 0 && occ[minR - 1][car.c] === null) minR--;
+          let maxR = car.r;
+          while (maxR + car.len < SC_GRID && occ[maxR + car.len][car.c] === null) maxR++;
+          return { min: minR, max: maxR };
+        }
+      }
+
+      function loadSlideCarsLevel(lvlNum) {
+        const cfg = DIFF_CONFIG[currentDiff];
+        const tpl = SLIDE_CAR_LEVELS[(lvlNum - 1) % SLIDE_CAR_LEVELS.length];
+        const extraBlock = Math.floor((lvlNum - 1) / SLIDE_CAR_LEVELS.length);
+        const copied = cloneCars(tpl.cars);
+        if (extraBlock > 0) {
+          const occ = buildOccupancy(copied, null);
+          for (let r = 0; r < SC_GRID; r++) {
+            if (r === EXIT_ROW) continue;
+            if (occ[r][4] === null && occ[r][5] === null) {
+              copied.push({
+                id: "extra_" + lvlNum + "_" + r,
+                c: 4,
+                r: r,
+                len: 2,
+                orient: "H",
+                isRed: false,
+                color: "#64748b"
+              });
+              break;
+            }
+          }
+        }
+        slideCarsInitial = cloneCars(copied);
+        slideCarsList = cloneCars(copied);
+        slideCarsMovesLeft = tpl.parMoves + cfg.slideMovesBonus + (lvlNum - 1) * 2;
+        slideCarsLevelStartScore = slideCarsScore;
+        slideCarsExiting = false;
+        draggedCar = null;
+        updateSlideCarsHUD();
+        syncLockVisuals();
+        slideCarsStatusEl.textContent = "Màn " + lvlNum + " (" + cfg.label + "): Trượt xe mở lối và đưa xe đỏ ra cổng phải!";
+      }
+
+      function startSlideCarsRun() {
+        if (!requireLogin(slideCarsStatusEl)) return;
+        slideCarsLevel = 1;
+        slideCarsScore = 0;
+        slideCarsParticles = [];
+        slideCarsRunning = true;
+        loadSlideCarsLevel(1);
+      }
+
+      function retrySlideCarsLevel() {
+        if (!requireLogin(slideCarsStatusEl)) return;
+        if (slideCarsInitial.length === 0) {
+          startSlideCarsRun();
+          return;
+        }
+        const cfg = DIFF_CONFIG[currentDiff];
+        const tpl = SLIDE_CAR_LEVELS[(slideCarsLevel - 1) % SLIDE_CAR_LEVELS.length];
+        slideCarsList = cloneCars(slideCarsInitial);
+        slideCarsMovesLeft = tpl.parMoves + cfg.slideMovesBonus + (slideCarsLevel - 1) * 2;
+        slideCarsScore = slideCarsLevelStartScore;
+        slideCarsExiting = false;
+        slideCarsRunning = true;
+        draggedCar = null;
+        updateSlideCarsHUD();
+        syncLockVisuals();
+        slideCarsStatusEl.textContent = "Đã đặt lại Màn " + slideCarsLevel + ". Kéo các xe để mở đường cho xe đỏ!";
+      }
+
+      function getSlideCarsCoords(clientX, clientY) {
+        const rect = slideCarsCanvas.getBoundingClientRect();
+        return {
+          x: ((clientX - rect.left) / rect.width) * slideCarsCanvas.width,
+          y: ((clientY - rect.top) / rect.height) * slideCarsCanvas.height
+        };
+      }
+
+      function getCarRect(car) {
+        const x = SC_OFFSET_X + car.c * (SC_CELL + SC_GAP);
+        const y = SC_OFFSET_Y + car.r * (SC_CELL + SC_GAP);
+        const w = car.orient === "H" ? car.len * SC_CELL + (car.len - 1) * SC_GAP : SC_CELL;
+        const h = car.orient === "V" ? car.len * SC_CELL + (car.len - 1) * SC_GAP : SC_CELL;
+        return { x: x, y: y, w: w, h: h };
+      }
+
+      slideCarsCanvas.addEventListener("pointerdown", function (e) {
+        if (!slideCarsRunning || slideCarsExiting || activeGame !== "slidecars") return;
+        const pt = getSlideCarsCoords(e.clientX, e.clientY);
+        for (let i = 0; i < slideCarsList.length; i++) {
+          const car = slideCarsList[i];
+          const rect = getCarRect(car);
+          if (pt.x >= rect.x && pt.x <= rect.x + rect.w && pt.y >= rect.y && pt.y <= rect.y + rect.h) {
+            const bounds = computeMoveBounds(car, slideCarsList);
+            draggedCar = {
+              car: car,
+              min: bounds.min,
+              max: bounds.max
+            };
+            dragStartPt = pt;
+            dragStartCell = car.orient === "H" ? car.c : car.r;
+            return;
+          }
+        }
+      });
+
+      slideCarsCanvas.addEventListener("pointermove", function (e) {
+        if (!draggedCar || !slideCarsRunning || slideCarsExiting) return;
+        const pt = getSlideCarsCoords(e.clientX, e.clientY);
+        const stepPx = SC_CELL + SC_GAP;
+        const delta = draggedCar.car.orient === "H"
+          ? (pt.x - dragStartPt.x) / stepPx
+          : (pt.y - dragStartPt.y) / stepPx;
+        const nextPos = Math.max(draggedCar.min, Math.min(draggedCar.max, Math.round(dragStartCell + delta)));
+        if (draggedCar.car.orient === "H") draggedCar.car.c = nextPos;
+        else draggedCar.car.r = nextPos;
+      });
+
+      function finishCarSlide() {
+        if (!draggedCar) return;
+        const car = draggedCar.car;
+        const prevPos = dragStartCell;
+        const newPos = car.orient === "H" ? car.c : car.r;
+        draggedCar = null;
+
+        if (newPos === prevPos) return;
+
+        slideCarsMovesLeft--;
+        updateSlideCarsHUD();
+
+        if (car.isRed && car.c + car.len === SC_GRID) {
+          slideCarsExiting = true;
+          redCarExitX = SC_OFFSET_X + car.c * (SC_CELL + SC_GAP);
+          const bonus = 50 + Math.max(0, slideCarsMovesLeft) * 10 + slideCarsLevel * 20;
+          slideCarsScore += bonus;
+          if (slideCarsScore > slideCarsBest) {
+            slideCarsBest = slideCarsScore;
+          }
+          saveBestOnly("slideCarsBest", slideCarsScore);
+          updateSlideCarsHUD();
+          spawnParticles(slideCarsParticles, SC_OFFSET_X + SC_BOARD_PX + 10, SC_OFFSET_Y + EXIT_ROW * (SC_CELL + SC_GAP) + SC_CELL / 2, "#ef4444", 18);
+          const cleared = slideCarsLevel;
+          slideCarsLevel++;
+          slideCarsStatusEl.innerHTML = '<span class="win">🚗 Xe đỏ đã thoát ra ở Màn ' + cleared + " (+" + bonus + " điểm)! Đang sang Màn " + slideCarsLevel + "...</span>";
+          setTimeout(function () {
+            if (slideCarsRunning) {
+              loadSlideCarsLevel(slideCarsLevel);
+            }
+          }, 800);
+          return;
+        }
+
+        if (slideCarsMovesLeft <= 0) {
+          slideCarsRunning = false;
+          syncLockVisuals();
+          slideCarsStatusEl.innerHTML = '<span class="lose">⛔ Hết lượt trượt ở Màn ' + slideCarsLevel + "! Điểm của bạn: " + slideCarsScore + ".</span>";
+          updateResult(slideCarsScore > 0 ? "win" : "loss", "slideCarsBest", slideCarsScore, null);
+        }
+      }
+
+      window.addEventListener("pointerup", finishCarSlide);
+
+      function drawDetailedCar(ctx, x, y, w, h, car, isDragging, pulsePhase) {
+        const pad = 2.5;
+        const bx = x + pad;
+        const by = y + pad;
+        const bw = w - pad * 2;
+        const bh = h - pad * 2;
+        const radius = 11;
+
+        ctx.save();
+
+        // Bánh xe nhô nhẹ ở hai đầu trục (làm rõ dáng ô tô)
+        ctx.fillStyle = car.isRed ? "#111827" : "#090d16";
+        ctx.strokeStyle = car.isRed ? "#fda4af" : "rgba(148, 163, 184, 0.35)";
+        ctx.lineWidth = car.isRed ? 1.6 : 1;
+        const wheelThick = 5;
+        const wheelLen = 12;
+
+        if (car.orient === "H") {
+          const leftWheelX = bx + 9;
+          const rightWheelX = bx + bw - 9 - wheelLen;
+          [leftWheelX, rightWheelX].forEach(function (wx) {
+            ctx.beginPath();
+            ctx.roundRect(wx, by - wheelThick + 2, wheelLen, wheelThick, 2);
+            ctx.roundRect(wx, by + bh - 2, wheelLen, wheelThick, 2);
+            ctx.fill();
+            ctx.stroke();
+          });
+        } else {
+          const topWheelY = by + 9;
+          const botWheelY = by + bh - 9 - wheelLen;
+          [topWheelY, botWheelY].forEach(function (wy) {
+            ctx.beginPath();
+            ctx.roundRect(bx - wheelThick + 2, wy, wheelThick, wheelLen, 2);
+            ctx.roundRect(bx + bw - 2, wy, wheelThick, wheelLen, 2);
+            ctx.fill();
+            ctx.stroke();
+          });
+        }
+
+        if (car.isRed) {
+          const glowAlpha = 0.45 + Math.sin(pulsePhase) * 0.25;
+          ctx.shadowColor = "rgba(251, 113, 133, " + glowAlpha.toFixed(2) + ")";
+          ctx.shadowBlur = isDragging ? 20 : 14;
+        } else if (isDragging) {
+          ctx.shadowColor = "rgba(56, 189, 248, 0.45)";
+          ctx.shadowBlur = 12;
+        }
+
+        ctx.fillStyle = car.isRed ? "#ef4444" : car.color;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bh, radius);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        if (car.isRed) {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 2.6;
+        } else if (isDragging) {
+          ctx.strokeStyle = "#f8fafc";
+          ctx.lineWidth = 2.2;
+        } else {
+          ctx.strokeStyle = "rgba(248, 250, 252, 0.35)";
+          ctx.lineWidth = 1.4;
+        }
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bh, radius);
+        ctx.stroke();
+
+        if (car.orient === "H") {
+          const cabinX = bx + bw * 0.22;
+          const cabinW = bw * 0.54;
+          const cabinY = by + 7;
+          const cabinH = bh - 14;
+
+          ctx.fillStyle = car.isRed ? "rgba(15, 23, 42, 0.72)" : "rgba(6, 9, 19, 0.42)";
+          ctx.beginPath();
+          ctx.roundRect(cabinX, cabinY, cabinW, cabinH, 6);
+          ctx.fill();
+
+          ctx.fillStyle = car.isRed ? "rgba(186, 230, 253, 0.68)" : "rgba(226, 232, 240, 0.24)";
+          ctx.beginPath();
+          ctx.roundRect(cabinX + cabinW - 9, cabinY + 3, 6, Math.max(4, cabinH - 6), 2);
+          ctx.roundRect(cabinX + 3, cabinY + 3, 5, Math.max(4, cabinH - 6), 2);
+          ctx.fill();
+
+          if (car.isRed) {
+            ctx.fillStyle = "#fef08a";
+            ctx.beginPath();
+            ctx.arc(bx + bw - 5, by + 11, 3.3, 0, Math.PI * 2);
+            ctx.arc(bx + bw - 5, by + bh - 11, 3.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "900 12px system-ui, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("➔", bx + bw * 0.5, by + bh / 2 + 0.5);
+          }
+        } else {
+          const cabinX = bx + 7;
+          const cabinW = bw - 14;
+          const cabinY = by + bh * 0.22;
+          const cabinH = bh * 0.54;
+
+          ctx.fillStyle = "rgba(6, 9, 19, 0.42)";
+          ctx.beginPath();
+          ctx.roundRect(cabinX, cabinY, cabinW, cabinH, 6);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(226, 232, 240, 0.24)";
+          ctx.beginPath();
+          ctx.roundRect(cabinX + 3, cabinY + 3, Math.max(4, cabinW - 6), 5, 2);
+          ctx.roundRect(cabinX + 3, cabinY + cabinH - 8, Math.max(4, cabinW - 6), 5, 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function updateAndDrawSlideCars(now) {
+        const pulse = (now || performance.now()) * 0.006;
+        scCtx.fillStyle = "#060913";
+        scCtx.fillRect(0, 0, slideCarsCanvas.width, slideCarsCanvas.height);
+
+        scCtx.save();
+        scCtx.fillStyle = "rgba(15, 23, 42, 0.9)";
+        scCtx.strokeStyle = "rgba(148, 163, 184, 0.28)";
+        scCtx.lineWidth = 2;
+        scCtx.beginPath();
+        scCtx.roundRect(SC_OFFSET_X - 8, SC_OFFSET_Y - 8, SC_BOARD_PX + 16, SC_BOARD_PX + 16, 14);
+        scCtx.fill();
+        scCtx.stroke();
+
+        const exitY = SC_OFFSET_Y + EXIT_ROW * (SC_CELL + SC_GAP);
+        const exitX = SC_OFFSET_X + SC_BOARD_PX + 2;
+        scCtx.fillStyle = "rgba(239, 68, 68, 0.25)";
+        scCtx.strokeStyle = "#fb7185";
+        scCtx.lineWidth = 2;
+        scCtx.beginPath();
+        scCtx.roundRect(exitX, exitY + 3, 28, SC_CELL - 6, 7);
+        scCtx.fill();
+        scCtx.stroke();
+
+        scCtx.fillStyle = "#fecdd3";
+        scCtx.font = "800 11px system-ui, sans-serif";
+        scCtx.textAlign = "center";
+        scCtx.textBaseline = "middle";
+        scCtx.fillText("OUT", exitX + 14, exitY + SC_CELL / 2 - 6);
+        scCtx.fillText("➔", exitX + 14, exitY + SC_CELL / 2 + 8);
+
+        for (let r = 0; r < SC_GRID; r++) {
+          for (let c = 0; c < SC_GRID; c++) {
+            const gx = SC_OFFSET_X + c * (SC_CELL + SC_GAP);
+            const gy = SC_OFFSET_Y + r * (SC_CELL + SC_GAP);
+            scCtx.fillStyle = r === EXIT_ROW ? "rgba(239, 68, 68, 0.11)" : "rgba(9, 13, 22, 0.75)";
+            scCtx.beginPath();
+            scCtx.roundRect(gx, gy, SC_CELL, SC_CELL, 8);
+            scCtx.fill();
+          }
+        }
+        scCtx.restore();
+
+        if (slideCarsExiting) {
+          redCarExitX += 11;
+        }
+
+        let redCarItem = null;
+        for (let i = 0; i < slideCarsList.length; i++) {
+          const car = slideCarsList[i];
+          if (car.isRed) {
+            redCarItem = car;
+            continue;
+          }
+          const rect = getCarRect(car);
+          const isDragging = draggedCar && draggedCar.car.id === car.id;
+          drawDetailedCar(scCtx, rect.x, rect.y, rect.w, rect.h, car, isDragging, pulse);
+        }
+
+        if (redCarItem) {
+          const rect = getCarRect(redCarItem);
+          const rx = slideCarsExiting ? redCarExitX : rect.x;
+          const isDragging = draggedCar && draggedCar.car.id === redCarItem.id;
+          drawDetailedCar(scCtx, rx, rect.y, rect.w, rect.h, redCarItem, isDragging, pulse);
+        }
+
+        updateAndDrawParticles(scCtx, slideCarsParticles);
+      }
+
+      document.getElementById("slideCarsStart").addEventListener("click", function (e) {
+        e.currentTarget.blur();
+        startSlideCarsRun();
+      });
+
+      document.getElementById("slideCarsResetLevel").addEventListener("click", function (e) {
+        e.currentTarget.blur();
+        retrySlideCarsLevel();
+      });
+
+      // ================= 6. ĐOÁN SỐ =================
+      let secretNumber = Math.floor(Math.random() * 100) + 1;
+      let gameOverGuess = false;
+      const guessInput = document.getElementById("guessInput");
+      const guessBtn = document.getElementById("guessBtn");
+      const guessStatus = document.getElementById("guessStatus");
+      const guessAttempts = document.getElementById("guessAttempts");
+      const guessReset = document.getElementById("guessReset");
+
+      function handleGuess() {
+        if (!requireLogin(guessStatus)) return;
+        const maxAttempts = DIFF_CONFIG[currentDiff].guessMaxAttempts;
+        if (gameOverGuess) return;
+        const val = Number(guessInput.value);
+        if (!val || val < 1 || val > 100) {
+          guessStatus.innerHTML = '<span class="lose">Vui lòng nhập số hợp lệ từ 1 đến 100.</span>';
+          return;
+        }
+        attempts++;
+        guessAttempts.textContent = "Số lượt đã dùng: " + attempts + " / " + maxAttempts;
+        if (val === secretNumber) {
+          guessStatus.innerHTML = '<span class="win">🎉 Chính xác! Số bí mật là ' + secretNumber + " (sau " + attempts + " lượt).</span>";
+          gameOverGuess = true;
+          updateResult("win", null, 0, "guessWins");
+        } else if (attempts >= maxAttempts) {
+          guessStatus.innerHTML = '<span class="lose">💥 Hết lượt! Số bí mật là ' + secretNumber + ".</span>";
+          gameOverGuess = true;
+          updateResult("loss", null, 0, null);
+        } else if (val < secretNumber) {
+          guessStatus.textContent = "⬆️ Số " + val + " nhỏ hơn số bí mật. Thử số lớn hơn!";
+        } else {
+          guessStatus.textContent = "⬇️ Số " + val + " lớn hơn số bí mật. Thử số nhỏ hơn!";
+        }
+        syncLockVisuals();
+        guessInput.value = "";
+        guessInput.focus();
+      }
+
+      guessBtn.addEventListener("click", handleGuess);
+      guessInput.addEventListener("keydown", function (e) { if (e.key === "Enter") handleGuess(); });
+      guessReset.addEventListener("click", function () {
+        if (!requireLogin(guessStatus)) return;
+        const maxAttempts = DIFF_CONFIG[currentDiff].guessMaxAttempts;
+        secretNumber = Math.floor(Math.random() * 100) + 1;
+        attempts = 0;
+        gameOverGuess = false;
+        guessInput.value = "";
+        guessAttempts.textContent = "Số lượt đã dùng: 0 / " + maxAttempts;
+        guessStatus.textContent = "Đã tạo số mới! Hãy nhập số và bấm Đoán.";
+        syncLockVisuals();
+      });
+
+      // ================= 7. KÉO - BÚA - BAO =================
+      const choices = ["Kéo", "Búa", "Bao"];
+      const iconMap = { "Kéo": "✌️", "Búa": "✊", "Bao": "🖐️" };
+      const counterMap = { "Kéo": "Búa", "Búa": "Bao", "Bao": "Kéo" };
+      let pScore = 0, cScore = 0, dScore = 0;
+      const playerScoreEl = document.getElementById("playerScore");
+      const cpuScoreEl = document.getElementById("cpuScore");
+      const drawScoreEl = document.getElementById("drawScore");
+      const rpsStatusEl = document.getElementById("rpsStatus");
+
+      document.querySelectorAll(".rps-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const p1 = requireLogin(rpsStatusEl);
+          if (!p1) return;
+          const playerChoice = btn.dataset.choice;
+          const chance = DIFF_CONFIG[currentDiff].rpsCounterChance;
+          const cpuChoice = Math.random() < chance ? counterMap[playerChoice] : choices[Math.floor(Math.random() * choices.length)];
+          const pairText = iconMap[playerChoice] + " " + playerChoice + " vs " + iconMap[cpuChoice] + " " + cpuChoice;
+          if (playerChoice === cpuChoice) {
+            dScore++; drawScoreEl.textContent = String(dScore);
+            rpsStatusEl.textContent = pairText + " → Hòa nhau!";
+            updateResult("draw", null, 0, null);
+          } else if ((playerChoice === "Kéo" && cpuChoice === "Bao") || (playerChoice === "Búa" && cpuChoice === "Kéo") || (playerChoice === "Bao" && cpuChoice === "Búa")) {
+            pScore++; playerScoreEl.textContent = String(pScore);
+            rpsStatusEl.innerHTML = pairText + ' → <span class="win">' + escapeHtml(p1.name) + " thắng!</span>";
+            updateResult("win", null, 0, "rpsWins");
+          } else {
+            cScore++; cpuScoreEl.textContent = String(cScore);
+            rpsStatusEl.innerHTML = pairText + ' → <span class="lose">Máy thắng!</span>';
+            updateResult("loss", null, 0, null);
+          }
+        });
+      });
+
+      document.getElementById("rpsReset").addEventListener("click", function () {
+        pScore = 0; cScore = 0; dScore = 0;
+        playerScoreEl.textContent = "0"; cpuScoreEl.textContent = "0"; drawScoreEl.textContent = "0";
+        rpsStatusEl.textContent = "Đã đặt lại điểm số.";
+      });
+
+      // ================= 8. CARO 3X3 (MINIMAX + ALPHA-BETA) =================
+      const cells = document.querySelectorAll(".ttt-cell");
+      const tttStatus = document.getElementById("tttStatus");
+      const tttDescEl = document.getElementById("tttDesc");
+      let tttBoard = ["", "", "", "", "", "", "", "", ""];
+      let currentPlayer = "X";
+      let tttOver = false;
+      const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+      function findWinLine(grid) {
+        for (let i = 0; i < winPatterns.length; i++) {
+          const line = winPatterns[i];
+          const a = line[0], b = line[1], c = line[2];
+          if (grid[a] && grid[a] === grid[b] && grid[a] === grid[c]) return { winner: grid[a], line: line };
+        }
+        return grid.indexOf("") === -1 ? { winner: "draw", line: null } : null;
+      }
+
+      function evaluateBoardHeuristic(grid) {
+        let score = 0;
+        for (let i = 0; i < winPatterns.length; i++) {
+          const line = winPatterns[i];
+          let oCount = 0;
+          let xCount = 0;
+          for (let j = 0; j < 3; j++) {
+            const mark = grid[line[j]];
+            if (mark === "O") oCount++;
+            else if (mark === "X") xCount++;
+          }
+          if (oCount > 0 && xCount === 0) score += oCount * oCount * 10;
+          else if (xCount > 0 && oCount === 0) score -= xCount * xCount * 10;
+        }
+        if (grid[4] === "O") score += 6;
+        else if (grid[4] === "X") score -= 6;
+        return score;
+      }
+
+      function minimax(grid, depth, maxDepth, isMaximizing, alpha, beta) {
+        const res = findWinLine(grid);
+        if (res) {
+          if (res.winner === "O") return 1000 + depth;
+          if (res.winner === "X") return -1000 - depth;
+          return 0;
+        }
+        if (depth >= maxDepth) {
+          return evaluateBoardHeuristic(grid);
+        }
+
+        if (isMaximizing) {
+          let best = -Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (!grid[i]) {
+              grid[i] = "O";
+              const val = minimax(grid, depth + 1, maxDepth, false, alpha, beta);
+              grid[i] = "";
+              if (val > best) best = val;
+              if (best > alpha) alpha = best;
+              if (beta <= alpha) break;
+            }
+          }
+          return best;
+        } else {
+          let best = Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (!grid[i]) {
+              grid[i] = "X";
+              const val = minimax(grid, depth + 1, maxDepth, true, alpha, beta);
+              grid[i] = "";
+              if (val < best) best = val;
+              if (best < beta) beta = best;
+              if (beta <= alpha) break;
+            }
+          }
+          return best;
+        }
+      }
+
+      function chooseAIMove() {
+        const cfg = DIFF_CONFIG[currentDiff];
+        const empty = [];
+        for (let i = 0; i < 9; i++) {
+          if (!tttBoard[i]) empty.push(i);
+        }
+        if (empty.length === 0) return -1;
+        if (cfg.tttRandomChance > 0 && Math.random() < cfg.tttRandomChance) {
+          return empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        let bestScore = -Infinity;
+        let bestMoves = [];
+        for (let idx = 0; idx < empty.length; idx++) {
+          const move = empty[idx];
+          tttBoard[move] = "O";
+          const score = minimax(tttBoard, 0, cfg.tttDepth, false, -Infinity, Infinity);
+          tttBoard[move] = "";
+          if (score > bestScore) {
+            bestScore = score;
+            bestMoves = [move];
+          } else if (score === bestScore) {
+            bestMoves.push(move);
+          }
+        }
+        return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+      }
+
+      function placeMark(idx, mark) {
+        tttBoard[idx] = mark;
+        cells[idx].textContent = mark;
+        cells[idx].classList.add(mark.toLowerCase());
+      }
+
+      function finishMoveCheck() {
+        const outcome = findWinLine(tttBoard);
+        if (!outcome) return false;
+        const p1 = getLoggedInAccount();
+        const playerLabel = p1 ? escapeHtml(p1.name) : "Bạn";
+        if (outcome.winner === "X" || outcome.winner === "O") {
+          if (outcome.line) outcome.line.forEach(function (i) { cells[i].classList.add("win-cell"); });
+          if (outcome.winner === "X") {
+            updateResult("win", null, 0, "tttWins");
+            tttStatus.innerHTML = '<span class="win">🏆 ' + playerLabel + " (X) chiến thắng!</span>";
+          } else {
+            updateResult("loss", null, 0, null);
+            tttStatus.innerHTML = '<span class="lose">🤖 Máy (O) chiến thắng!</span>';
+          }
+          tttOver = true;
+          syncLockVisuals();
+          return true;
+        }
+        if (outcome.winner === "draw") {
+          updateResult("draw", null, 0, null);
+          tttStatus.textContent = "🤝 Ván đấu hòa!";
+          tttOver = true;
+          syncLockVisuals();
+          return true;
+        }
+        return false;
+      }
+
+      function updateTTTModeUI() {
+        const cfg = DIFF_CONFIG[currentDiff];
+        const p1 = getLoggedInAccount();
+        const label = p1 ? escapeHtml(p1.name) : "Người chơi (chưa đăng nhập)";
+        tttDescEl.textContent = label + " (X) đấu với Máy (O) — Độ khó: " + cfg.label + ".";
+      }
+
+      function resetTTT() {
+        tttBoard = ["", "", "", "", "", "", "", "", ""];
+        currentPlayer = "X";
+        tttOver = false;
+        cells.forEach(function (cell) { cell.textContent = ""; cell.classList.remove("x", "o", "win-cell"); });
+        updateTTTModeUI();
+        syncLockVisuals();
+        const p1 = getLoggedInAccount();
+        if (!p1) {
+          tttStatus.innerHTML = '<span class="lose">🔒 Hãy đăng nhập để lưu kết quả ván Caro.</span>';
+          return;
+        }
+        tttStatus.innerHTML = 'Lượt của: <strong style="margin-left:6px;">' + escapeHtml(p1.name) + " (X)</strong>";
+      }
+
+      cells.forEach(function (cell) {
+        cell.addEventListener("click", function () {
+          const p1 = requireLogin(tttStatus);
+          if (!p1) return;
+          const idx = Number(cell.dataset.index);
+          if (tttBoard[idx] || tttOver || currentPlayer !== "X") return;
+          placeMark(idx, "X");
+          syncLockVisuals();
+          if (finishMoveCheck()) return;
+          currentPlayer = "O";
+          tttStatus.innerHTML = 'Lượt của: <strong style="margin-left:6px;">Máy (O)</strong>';
+          const aiIdx = chooseAIMove();
+          if (typeof aiIdx === "number" && aiIdx >= 0) {
+            placeMark(aiIdx, "O");
+            if (finishMoveCheck()) return;
+          }
+          currentPlayer = "X";
+          tttStatus.innerHTML = 'Lượt của: <strong style="margin-left:6px;">' + escapeHtml(p1.name) + " (X)</strong>";
+        });
+      });
+
+      document.getElementById("tttReset").addEventListener("click", resetTTT);
+
+      // ================= 1. RẮN SĂN MỒI =================
+      const snakeCanvas = document.getElementById("snakeCanvas");
+      const sCtx = snakeCanvas.getContext("2d");
+      const gridSize = 20;
+      const tileCount = snakeCanvas.width / gridSize;
+      let snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      let snakeDir = { x: 1, y: 0 };
+      let dirQueue = [];
+      let food = { x: 15, y: 10 };
+      let snakeParticles = [];
+      let snakeScore = 0, snakeBest = 0;
+      let snakeRunning = false, snakeTimer = null;
+      const snakeScoreEl = document.getElementById("snakeScore");
+      const snakeBestEl = document.getElementById("snakeBest");
+      const snakeStatusEl = document.getElementById("snakeStatus");
+
+      function queueSnakeDir(newDir) {
+        const lastPlanned = dirQueue.length > 0 ? dirQueue[dirQueue.length - 1] : snakeDir;
+        const isOpposite = lastPlanned.x === -newDir.x && lastPlanned.y === -newDir.y;
+        const isSame = lastPlanned.x === newDir.x && lastPlanned.y === newDir.y;
+        if (!isOpposite && !isSame && dirQueue.length < 2) dirQueue.push(newDir);
+      }
+
+      function randomFood() {
+        let pos;
+        do { pos = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) }; }
+        while (snake.some(function (seg) { return seg.x === pos.x && seg.y === pos.y; }));
+        return pos;
+      }
+
+      function drawSnakeScene(now) {
+        sCtx.fillStyle = "#060913";
+        sCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+        sCtx.strokeStyle = "rgba(148, 163, 184, 0.06)";
+        sCtx.lineWidth = 1;
+        for (let i = 1; i < tileCount; i++) {
+          sCtx.beginPath(); sCtx.moveTo(i * gridSize, 0); sCtx.lineTo(i * gridSize, snakeCanvas.height); sCtx.stroke();
+          sCtx.beginPath(); sCtx.moveTo(0, i * gridSize); sCtx.lineTo(snakeCanvas.width, i * gridSize); sCtx.stroke();
+        }
+        const pulse = 1 + Math.sin(now * 0.008) * 0.14;
+        const fx = food.x * gridSize + gridSize / 2;
+        const fy = food.y * gridSize + gridSize / 2;
+        sCtx.save(); sCtx.fillStyle = "#f43f5e"; sCtx.beginPath(); sCtx.arc(fx, fy, (gridSize / 2 - 2) * pulse, 0, Math.PI * 2); sCtx.fill(); sCtx.restore();
+
+        for (let idx = snake.length - 1; idx >= 0; idx--) {
+          const seg = snake[idx];
+          const cx = seg.x * gridSize + gridSize / 2;
+          const cy = seg.y * gridSize + gridSize / 2;
+          sCtx.save();
+          sCtx.fillStyle = idx === 0 ? "#38bdf8" : idx % 2 === 0 ? "#22c55e" : "#16a34a";
+          sCtx.beginPath(); sCtx.arc(cx, cy, gridSize / 2 - 1.5, 0, Math.PI * 2); sCtx.fill();
+          if (idx === 0) {
+            const perpX = -snakeDir.y * 4.2, perpY = snakeDir.x * 4.2;
+            const fwdX = snakeDir.x * 3.2, fwdY = snakeDir.y * 3.2;
+            sCtx.fillStyle = "#ffffff";
+            sCtx.beginPath(); sCtx.arc(cx + fwdX + perpX, cy + fwdY + perpY, 3, 0, Math.PI * 2); sCtx.arc(cx + fwdX - perpX, cy + fwdY - perpY, 3, 0, Math.PI * 2); sCtx.fill();
+          }
+          sCtx.restore();
+        }
+        updateAndDrawParticles(sCtx, snakeParticles);
+      }
+
+      function endSnake(reason) {
+        snakeRunning = false;
+        clearInterval(snakeTimer);
+        syncLockVisuals();
+        if (snake[0]) spawnParticles(snakeParticles, snake[0].x * gridSize + gridSize / 2, snake[0].y * gridSize + gridSize / 2, "#38bdf8", 16);
+        snakeStatusEl.innerHTML = '<span class="lose">' + reason + " Điểm của bạn: " + snakeScore + ".</span>";
+        updateResult(snakeScore > 0 ? "win" : "loss", "snakeBest", snakeScore, null);
+      }
+
+      function stepSnake() {
+        if (!snakeRunning) return;
+        if (dirQueue.length > 0) snakeDir = dirQueue.shift();
+        const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
+        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) { endSnake("Đâm vào tường rồi!"); return; }
+        if (snake.some(function (seg) { return seg.x === head.x && seg.y === head.y; })) { endSnake("Rắn cắn trúng thân mình!"); return; }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+          spawnParticles(snakeParticles, food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, "#fb7185", 12);
+          snakeScore += 10; snakeScoreEl.textContent = String(snakeScore);
+          if (snakeScore > snakeBest) { snakeBest = snakeScore; snakeBestEl.textContent = String(snakeBest); }
+          food = randomFood();
+        } else { snake.pop(); }
+      }
+
+      function startSnake() {
+        if (!requireLogin(snakeStatusEl)) return;
+        clearInterval(snakeTimer);
+        snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+        snakeDir = { x: 1, y: 0 }; dirQueue = []; food = randomFood(); snakeParticles = [];
+        snakeScore = 0; snakeScoreEl.textContent = "0"; snakeRunning = true;
+        snakeStatusEl.textContent = "Đang chơi (" + DIFF_CONFIG[currentDiff].label + ")...";
+        syncLockVisuals();
+        snakeTimer = setInterval(stepSnake, DIFF_CONFIG[currentDiff].snakeMs);
+      }
+
+      document.getElementById("snakeStart").addEventListener("click", function (e) { e.currentTarget.blur(); startSnake(); });
+
+      // ================= 2. VƯỢT CHƯỚNG NGẠI VẬT =================
+      const runnerCanvas = document.getElementById("runnerCanvas");
+      const rCtx = runnerCanvas.getContext("2d");
+      const groundY = 202;
+      let player = { x: 64, y: groundY - 36, w: 32, h: 36, vy: 0, grounded: true, scaleX: 1, scaleY: 1 };
+      let obstacles = [], runnerParticles = [];
+      let groundScroll = 0, runnerScore = 0, runnerBest = 0;
+      let runnerSpeed = DIFF_CONFIG.normal.runnerSpeed, spawnCooldown = 35, runnerRunning = false;
+      const runnerScoreEl = document.getElementById("runnerScore");
+      const runnerBestEl = document.getElementById("runnerBest");
+      const runnerStatusEl = document.getElementById("runnerStatus");
+
+      function triggerJump() {
+        if (activeGame !== "runner" || !runnerRunning) return;
+        if (player.grounded) { player.vy = DIFF_CONFIG[currentDiff].runnerJump; player.grounded = false; player.scaleX = 0.82; player.scaleY = 1.22; }
+      }
+
+      function startRunner() {
+        if (!requireLogin(runnerStatusEl)) return;
+        const cfg = DIFF_CONFIG[currentDiff];
+        player = { x: 64, y: groundY - 36, w: 32, h: 36, vy: 0, grounded: true, scaleX: 1, scaleY: 1 };
+        obstacles = []; runnerParticles = []; runnerScore = 0; runnerSpeed = cfg.runnerSpeed; spawnCooldown = 30; runnerRunning = true;
+        runnerScoreEl.textContent = "0"; runnerStatusEl.textContent = "Đang chạy (" + cfg.label + ")! Nhảy qua các khối gai.";
+        syncLockVisuals();
+      }
+
+      function updateAndDrawRunner() {
+        const cfg = DIFF_CONFIG[currentDiff];
+        player.scaleX += (1 - player.scaleX) * 0.18;
+        player.scaleY += (1 - player.scaleY) * 0.18;
+        if (activeGame === "runner" && runnerRunning) {
+          groundScroll = (groundScroll + runnerSpeed) % 32;
+          const wasGrounded = player.grounded;
+          player.vy += cfg.runnerGravity; player.y += player.vy;
+          if (player.y >= groundY - player.h) {
+            player.y = groundY - player.h; player.vy = 0; player.grounded = true;
+            if (!wasGrounded) { player.scaleX = 1.22; player.scaleY = 0.8; }
+          }
+          spawnCooldown--;
+          if (spawnCooldown <= 0) {
+            const obsH = 28 + Math.floor(Math.random() * 20);
+            const obsW = 22 + Math.floor(Math.random() * 14);
+            obstacles.push({ x: runnerCanvas.width + 10, y: groundY - obsH, w: obsW, h: obsH });
+            spawnCooldown = cfg.runnerMinGap + Math.floor(Math.random() * (cfg.runnerMaxGap - cfg.runnerMinGap + 1));
+          }
+          for (let i = obstacles.length - 1; i >= 0; i--) {
+            const ob = obstacles[i];
+            ob.x -= runnerSpeed;
+            const hit = player.x + 4 < ob.x + ob.w - 3 && player.x + player.w - 4 > ob.x + 3 && player.y + 4 < ob.y + ob.h && player.y + player.h > ob.y + 5;
+            if (hit) {
+              runnerRunning = false;
+              syncLockVisuals();
+              spawnParticles(runnerParticles, player.x + player.w / 2, player.y + player.h / 2, "#f43f5e", 18);
+              runnerStatusEl.innerHTML = '<span class="lose">💥 Va chạm chướng ngại vật! Điểm: ' + runnerScore + ".</span>";
+              updateResult(runnerScore > 0 ? "win" : "loss", "runnerBest", runnerScore, null);
+              break;
+            }
+            if (ob.x + ob.w < 0) {
+              obstacles.splice(i, 1); runnerScore += 10; runnerScoreEl.textContent = String(runnerScore);
+              runnerSpeed = Math.min(13.5, runnerSpeed + 0.14);
+              if (runnerScore > runnerBest) { runnerBest = runnerScore; runnerBestEl.textContent = String(runnerBest); }
+            }
+          }
+        } else if (activeGame === "runner") { groundScroll = (groundScroll + 1.1) % 32; }
+
+        rCtx.fillStyle = "#081022"; rCtx.fillRect(0, 0, runnerCanvas.width, runnerCanvas.height);
+        rCtx.fillStyle = "#0b1222"; rCtx.fillRect(0, groundY, runnerCanvas.width, runnerCanvas.height - groundY);
+        rCtx.strokeStyle = "#38bdf8"; rCtx.lineWidth = 2; rCtx.beginPath(); rCtx.moveTo(0, groundY); rCtx.lineTo(runnerCanvas.width, groundY); rCtx.stroke();
+        rCtx.save(); rCtx.translate(player.x + player.w / 2, player.y + player.h); rCtx.scale(player.scaleX, player.scaleY);
+        rCtx.fillStyle = "#38bdf8"; rCtx.beginPath(); rCtx.roundRect(-player.w / 2, -player.h, player.w, player.h, 8); rCtx.fill(); rCtx.restore();
+        obstacles.forEach(function (ob) {
+          rCtx.fillStyle = "#ef4444"; rCtx.beginPath(); rCtx.moveTo(ob.x, ob.y + ob.h); rCtx.lineTo(ob.x + ob.w / 2, ob.y); rCtx.lineTo(ob.x + ob.w, ob.y + ob.h); rCtx.closePath(); rCtx.fill();
+        });
+        updateAndDrawParticles(rCtx, runnerParticles);
+      }
+
+      document.getElementById("runnerStart").addEventListener("click", function (e) { e.currentTarget.blur(); startRunner(); });
+      document.getElementById("runnerJumpBtn").addEventListener("click", function (e) { e.currentTarget.blur(); triggerJump(); });
+
+      // ================= 3. ĐẤU SÚNG NGẮM CHUỘT =================
+      const shooterCanvas = document.getElementById("shooterCanvas");
+      const shCtx = shooterCanvas.getContext("2d");
+      let targets = [], projectiles = [], shotParticles = [];
+      let shooterScore = 0, shooterBest = 0, shooterTimeLeft = 45, shooterRunning = false;
+      let spawnTimer = null, clockTimer = null;
+      let aim = { x: shooterCanvas.width / 2, y: shooterCanvas.height / 2 - 40, active: false };
+      const shooterScoreEl = document.getElementById("shooterScore");
+      const shooterTimeEl = document.getElementById("shooterTime");
+      const shooterBestEl = document.getElementById("shooterBest");
+      const shooterStatusEl = document.getElementById("shooterStatus");
+
+      function stopShooterLoops() { clearInterval(spawnTimer); clearInterval(clockTimer); }
+
+      function spawnTarget() {
+        if (!shooterRunning || activeGame !== "shooter") return;
+        const cfg = DIFF_CONFIG[currentDiff];
+        const r = cfg.targetRadius, margin = r + 16;
+        const x = margin + Math.random() * Math.max(20, shooterCanvas.width - margin * 2);
+        const y = margin + Math.random() * Math.max(20, shooterCanvas.height - margin * 2 - 50);
+        const dir = Math.random() * Math.PI * 2;
+        targets.push({ x: x, y: y, vx: Math.cos(dir) * cfg.targetSpeed, vy: Math.sin(dir) * cfg.targetSpeed, r: r, gold: Math.random() < 0.25 });
+      }
+
+      function startShooter() {
+        if (!requireLogin(shooterStatusEl)) return;
+        stopShooterLoops();
+        const cfg = DIFF_CONFIG[currentDiff];
+        targets = []; projectiles = []; shotParticles = []; shooterScore = 0; shooterTimeLeft = 45; shooterRunning = true;
+        shooterScoreEl.textContent = "0"; shooterTimeEl.textContent = "45s";
+        shooterStatusEl.textContent = "Đang chơi (" + cfg.label + ")! Nhấp vào mục tiêu để bắn.";
+        syncLockVisuals();
+        spawnTarget();
+        spawnTimer = setInterval(spawnTarget, cfg.spawnIntervalMs);
+        clockTimer = setInterval(function () {
+          if (!shooterRunning) return;
+          shooterTimeLeft--; shooterTimeEl.textContent = shooterTimeLeft + "s";
+          if (shooterTimeLeft <= 0) {
+            shooterRunning = false; stopShooterLoops(); targets = [];
+            syncLockVisuals();
+            shooterStatusEl.innerHTML = '<span class="win">⏱️ Hết giờ! Điểm của bạn: ' + shooterScore + ".</span>";
+            updateResult(shooterScore > 0 ? "win" : "loss", "shooterBest", shooterScore, null);
+          }
+        }, 1000);
+      }
+
+      function getCanvasCoords(clientX, clientY) {
+        const rect = shooterCanvas.getBoundingClientRect();
+        return { x: ((clientX - rect.left) / rect.width) * shooterCanvas.width, y: ((clientY - rect.top) / rect.height) * shooterCanvas.height };
+      }
+
+      function shootToward(tx, ty) {
+        if (!shooterRunning || activeGame !== "shooter") return;
+        const startX = shooterCanvas.width / 2, startY = shooterCanvas.height - 22;
+        const dx = tx - startX, dy = ty - startY, dist = Math.hypot(dx, dy) || 1, speed = 15;
+        projectiles.push({ x: startX, y: startY, vx: (dx / dist) * speed, vy: (dy / dist) * speed });
+      }
+
+      shooterCanvas.addEventListener("pointermove", function (e) { const pt = getCanvasCoords(e.clientX, e.clientY); aim.x = pt.x; aim.y = pt.y; aim.active = true; });
+      shooterCanvas.addEventListener("pointerleave", function () { aim.active = false; });
+      shooterCanvas.addEventListener("pointerdown", function (e) { const pt = getCanvasCoords(e.clientX, e.clientY); aim.x = pt.x; aim.y = pt.y; aim.active = true; shootToward(pt.x, pt.y); });
+
+      function updateAndDrawShooter() {
+        shCtx.fillStyle = "#060913"; shCtx.fillRect(0, 0, shooterCanvas.width, shooterCanvas.height);
+        const gunX = shooterCanvas.width / 2, gunY = shooterCanvas.height - 22;
+        if (aim.active && shooterRunning) {
+          shCtx.save(); shCtx.strokeStyle = "rgba(56, 189, 248, 0.22)"; shCtx.setLineDash([5, 5]);
+          shCtx.beginPath(); shCtx.moveTo(gunX, gunY); shCtx.lineTo(aim.x, aim.y); shCtx.stroke(); shCtx.restore();
+        }
+        for (let i = targets.length - 1; i >= 0; i--) {
+          const t = targets[i];
+          if (shooterRunning) {
+            t.x += t.vx; t.y += t.vy; const pad = t.r + 8;
+            if (t.x < pad || t.x > shooterCanvas.width - pad) t.vx *= -1;
+            if (t.y < pad || t.y > shooterCanvas.height - 70) t.vy *= -1;
+          }
+          shCtx.save();
+          shCtx.fillStyle = t.gold ? "#facc15" : "#f43f5e"; shCtx.beginPath(); shCtx.arc(t.x, t.y, t.r, 0, Math.PI * 2); shCtx.fill();
+          shCtx.fillStyle = "#ffffff"; shCtx.beginPath(); shCtx.arc(t.x, t.y, t.r * 0.55, 0, Math.PI * 2); shCtx.fill();
+          shCtx.fillStyle = t.gold ? "#ea580c" : "#0284c7"; shCtx.beginPath(); shCtx.arc(t.x, t.y, t.r * 0.25, 0, Math.PI * 2); shCtx.fill();
+          shCtx.restore();
+        }
+        for (let bIdx = projectiles.length - 1; bIdx >= 0; bIdx--) {
+          const b = projectiles[bIdx]; b.x += b.vx; b.y += b.vy;
+          if (b.x < -20 || b.x > shooterCanvas.width + 20 || b.y < -20 || b.y > shooterCanvas.height + 20) { projectiles.splice(bIdx, 1); continue; }
+          let hitTarget = false;
+          for (let tIdx = targets.length - 1; tIdx >= 0; tIdx--) {
+            const t = targets[tIdx];
+            if (Math.hypot(b.x - t.x, b.y - t.y) <= t.r + 5) {
+              const gained = t.gold ? 20 : 10;
+              spawnParticles(shotParticles, t.x, t.y, t.gold ? "#facc15" : "#38bdf8", 14);
+              targets.splice(tIdx, 1); projectiles.splice(bIdx, 1); hitTarget = true;
+              shooterScore += gained; shooterScoreEl.textContent = String(shooterScore);
+              if (shooterScore > shooterBest) { shooterBest = shooterScore; shooterBestEl.textContent = String(shooterBest); }
+              break;
+            }
+          }
+          if (hitTarget) continue;
+          shCtx.fillStyle = "#fde047"; shCtx.beginPath(); shCtx.arc(b.x, b.y, 4.5, 0, Math.PI * 2); shCtx.fill();
+        }
+        shCtx.fillStyle = "#38bdf8"; shCtx.beginPath(); shCtx.roundRect(gunX - 18, gunY - 4, 36, 14, 6); shCtx.fill();
+        updateAndDrawParticles(shCtx, shotParticles);
+        if (aim.active) { shCtx.save(); shCtx.strokeStyle = "#38bdf8"; shCtx.lineWidth = 1.5; shCtx.beginPath(); shCtx.arc(aim.x, aim.y, 12, 0, Math.PI * 2); shCtx.stroke(); shCtx.restore(); }
+      }
+
+      document.getElementById("shooterStart").addEventListener("click", function (e) { e.currentTarget.blur(); startShooter(); });
+
+      function gameLoop(now) {
+        const timestamp = now || performance.now();
+        if (activeGame === "snake") drawSnakeScene(timestamp);
+        else if (activeGame === "runner") updateAndDrawRunner(timestamp);
+        else if (activeGame === "shooter") updateAndDrawShooter(timestamp);
+        else if (activeGame === "pointers") updateAndDrawPointers(timestamp);
+        else if (activeGame === "slidecars") updateAndDrawSlideCars(timestamp);
+        requestAnimationFrame(gameLoop);
+      }
+      requestAnimationFrame(gameLoop);
+
+      // ================= ĐIỀU KHIỂN CHUNG & ĐỘ KHÓ =================
+      function applyDifficultyToUI() {
+        const cfg = DIFF_CONFIG[currentDiff];
+        document.getElementById("snakeDiffLabel").textContent = cfg.label;
+        document.getElementById("runnerDiffLabel").textContent = cfg.label;
+        document.getElementById("guessDesc").textContent = "Máy chọn số từ 1 đến 100 (" + cfg.label + "). Bạn có " + cfg.guessMaxAttempts + " lượt đoán.";
+        document.getElementById("guessAttempts").textContent = "Số lượt đã dùng: " + attempts + " / " + cfg.guessMaxAttempts;
+        document.getElementById("rpsDesc").textContent = "Chế độ " + cfg.label + ": Chọn nước đi của bạn để đấu với máy.";
+        pointerGridSize = cfg.pointerGrid;
+        if (!pointersRunning) {
+          pointersLives = cfg.pointerLives;
+          updatePointersHUD();
+        }
+        updateTTTModeUI();
+        syncLockVisuals();
+      }
+
+      diffBtns.forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.currentTarget.blur();
+          if (isAnyGameInProgress()) {
+            setFeedback("Đang trong ván chơi — không thể đổi độ khó! Hãy kết thúc hoặc đặt lại ván trước.", "err");
+            return;
+          }
+          currentDiff = btn.dataset.diff;
+          diffBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          applyDifficultyToUI();
+          if (activeGame === "ttt") resetTTT();
+        });
+      });
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          const targetGame = tab.dataset.game;
+          if (targetGame === activeGame) return;
+          if (isAnyGameInProgress()) {
+            setFeedback("Đang chơi trò chơi này — không được đổi sang trò chơi khác! Hãy hoàn thành hoặc đặt lại ván trước.", "err");
+            return;
+          }
+          activeGame = targetGame;
+          tabs.forEach(function (t) { t.classList.remove("active"); });
+          sections.forEach(function (s) { s.classList.remove("active"); });
+          tab.classList.add("active");
+          document.getElementById(activeGame).classList.add("active");
+          syncLockVisuals();
+        });
+      });
+
+      window.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          document.querySelectorAll(".modal-backdrop.open").forEach(function (m) { m.classList.remove("open"); });
+          return;
+        }
+        if (document.querySelector(".modal-backdrop.open")) return;
+        if (activeGame === "snake") {
+          if (e.code === "ArrowUp" || e.code === "KeyW") queueSnakeDir({ x: 0, y: -1 });
+          if (e.code === "ArrowDown" || e.code === "KeyS") queueSnakeDir({ x: 0, y: 1 });
+          if (e.code === "ArrowLeft" || e.code === "KeyA") queueSnakeDir({ x: -1, y: 0 });
+          if (e.code === "ArrowRight" || e.code === "KeyD") queueSnakeDir({ x: 1, y: 0 });
+          if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) !== -1) e.preventDefault();
+        }
+        if (activeGame === "runner" && (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW")) {
+          e.preventDefault(); triggerJump();
+        }
+      });
+
+      renderProfileUI();
+      applyDifficultyToUI();
+      syncFromCloud();
+    })();
+  </script>
+</body>
+</html>
